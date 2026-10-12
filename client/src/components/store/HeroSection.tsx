@@ -7,11 +7,11 @@ import image from '../../assets/hero-bg.png'
 export const HeroSection: React.FC = () => {
   return (
     <section className="relative w-full overflow-hidden pt-8  md:pt-14 grid-paper border-b-2 border-black">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="h-auto flex flex-col items-center text-center max-w-4xl mx-auto ">
+      <div className="max-w-7xl mx-auto  sm:px-6 lg:px-8">
+        <div className="h-auto flex flex-col items-center text-center max-w-4xl mx-auto overflow-hidden">
           {/* Eyebrow & Shop Now Pill */}
-          <div className="absolute md:top-30 inline-flex items-center gap-3 px-4 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-6">
-            <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-black">
+          <div className="absolute md:top-30 inline-flex items-center gap-3 px-4 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-6 scale-75">
+            <span className="text-xs sm:text-sm  font-black uppercase tracking-wider text-black">
               COOL POSTERS FOR COOL PEOPLE
             </span>
             <Link
@@ -21,7 +21,13 @@ export const HeroSection: React.FC = () => {
               shop now
             </Link>
           </div>
-          <img className="w-full " src={image}/>
+          <div className="relative h-[500px] w-full sm:max-w-[600px] sm:h-[500px] flex justify-end items-end">
+            <img
+              className="absolute inset-0 h-full w-full object-cover"
+              src={image}
+              alt="Hero background"
+            />
+          </div>
           {/* Huge Slap it Typography Headline matching visual */}
           {/* <div className="relative my-2 select-none">
             

@@ -91,7 +91,7 @@ export const Footer: React.FC = () => {
 
         {/* Huge bottom branding - "Slapit India" matching reference */}
         <div className="relative pt-8 flex flex-col md:flex-row items-baseline justify-end gap-4">
-          <h1 className="absolute left-0 -bottom-[80px] text-[150px] font-black tracking-tighter text-black uppercase select-none leading-none">
+          <h1 className="absolute left-0 bottom-0 hidden lg:block md:-bottom-[80px] md:text-[150px] font-black tracking-tighter text-black uppercase select-none leading-none">
             Slapit India
           </h1>
           <p className="text-xs text-neutral-500 font-mono">
