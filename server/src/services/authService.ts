@@ -5,24 +5,45 @@ import { AppError } from '../middleware/errorHandler';
 
 export const authService = {
   async login(email: string, password: string) {
-    const user = await User.findOne({ email }).select('+passwordHash');
-    if (!user) throw new AppError('Invalid email or password', 401);
+  console.log('[AUTH] Login attempt received');
 
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) throw new AppError('Invalid email or password', 401);
+  const normalizedEmail = email.trim().toLowerCase();
 
-    const token = this.generateToken((user._id as any).toString(), user.role);
+  const user = await User.findOne({
+    email: normalizedEmail,
+  }).select('+passwordHash');
 
-    return {
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    };
-  },
+  console.log('[AUTH] User found:', !!user);
+
+  if (!user) {
+    throw new AppError('Invalid email or password', 401);
+  }
+
+  console.log('[AUTH] Hash exists:', !!user.passwordHash);
+
+  const isMatch = await user.comparePassword(password);
+
+  console.log('[AUTH] Password matched:', isMatch);
+
+  if (!isMatch) {
+    throw new AppError('Invalid email or password', 401);
+  }
+
+  const token = this.generateToken(
+    (user._id as any).toString(),
+    user.role
+  );
+
+  return {
+    token,
+    user: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+  };
+},
 
   async register(name: string, email: string, password: string, role: 'admin' | 'customer' = 'customer') {
     const existing = await User.findOne({ email });
