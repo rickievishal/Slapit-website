@@ -11,31 +11,38 @@ export interface IStorageProvider {
 }
 
 // Local storage implementation
+
 export class LocalStorageProvider implements IStorageProvider {
   private uploadDir: string;
   private baseUrl: string;
 
-  constructor(uploadDir: string = 'uploads', baseUrl: string = '/uploads') {
-    this.uploadDir = path.resolve(__dirname, '../../', uploadDir);
-    this.baseUrl = baseUrl;
+  constructor(
+  uploadDir: string = 'uploads',
+  baseUrl: string =
+    process.env.API_BASE_URL || 'http://localhost:5000'
+) {
+  this.uploadDir = path.resolve(__dirname, '../../', uploadDir);
+  this.baseUrl = baseUrl.replace(/\/$/, '');
 
-    if (!fs.existsSync(this.uploadDir)) {
-      fs.mkdirSync(this.uploadDir, { recursive: true });
-    }
+  if (!fs.existsSync(this.uploadDir)) {
+    fs.mkdirSync(this.uploadDir, { recursive: true });
   }
+}
 
-  async upload(file: Express.Multer.File): Promise<string> {
-    return `${this.baseUrl}/${file.filename}`;
-  }
+async upload(file: Express.Multer.File): Promise<string> {
+  return `${this.baseUrl}/uploads/${file.filename}`;
+}
 
   async delete(url: string): Promise<void> {
-    const filename = url.replace(`${this.baseUrl}/`, '');
+    const filename = path.basename(new URL(url).pathname);
     const filepath = path.join(this.uploadDir, filename);
+
     if (fs.existsSync(filepath)) {
       fs.unlinkSync(filepath);
     }
   }
 }
+
 
 // Multer configuration
 const storage = multer.diskStorage({
