@@ -10,7 +10,7 @@ export const HeroSection: React.FC = () => {
       <div className="max-w-7xl mx-auto  sm:px-6 lg:px-8">
         <div className="h-auto flex flex-col items-center text-center max-w-4xl mx-auto overflow-hidden">
           {/* Eyebrow & Shop Now Pill */}
-          <div className="absolute md:top-30 inline-flex items-center gap-3 px-4 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-6 scale-75">
+          <div className="absolute md:top-30 inline-flex items-center gap-3 px-4 py-1.5 bg-white border-2 border-black shadow-[3px_3px_0px_0px_#000000] mb-6 scale-75 lg:scale-100">
             <span className="text-xs sm:text-sm  font-black uppercase tracking-wider text-black">
               COOL POSTERS FOR COOL PEOPLE
             </span>
