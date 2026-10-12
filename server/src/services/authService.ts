@@ -9,6 +9,16 @@ export const authService = {
 
   const normalizedEmail = email.trim().toLowerCase();
 
+  console.log('[AUTH] Database:', User.db.name);
+  console.log('[AUTH] Collection:', User.collection.name);
+  console.log('[AUTH] Email received:', JSON.stringify(normalizedEmail));
+
+  const userCount = await User.countDocuments({
+    email: normalizedEmail,
+  });
+
+  console.log('[AUTH] Matching user count:', userCount);
+
   const user = await User.findOne({
     email: normalizedEmail,
   }).select('+passwordHash');
@@ -22,21 +32,11 @@ export const authService = {
   console.log('[AUTH] Hash exists:', !!user.passwordHash);
 
   const isMatch = await user.comparePassword(password);
-
   console.log('[AUTH] Password matched:', isMatch);
 
   if (!isMatch) {
     throw new AppError('Invalid email or password', 401);
   }
-  console.log('[AUTH] Database:', User.db.name);
-  console.log('[AUTH] Collection:', User.collection.name);
-  console.log('[AUTH] Email received:', JSON.stringify(email));
-  console.log(
-    '[AUTH] Matching user count:',
-    await User.countDocuments({
-      email: email.trim().toLowerCase(),
-    })
-  );
 
   const token = this.generateToken(
     (user._id as any).toString(),
