@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UploadCloud, X, Check } from 'lucide-react';
 import { uploadService } from '../../services/uploadService';
+import { getImageUrl } from '../../utils/imageUrl';
 
 interface ImageUploaderProps {
   images: string[];
@@ -49,7 +50,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange }
             key={idx}
             className="relative w-24 h-32 border-2 border-black bg-white shadow-[2px_2px_0px_0px_#000000] overflow-hidden group"
           >
-            <img src={img} alt={`Uploaded ${idx + 1}`} className="w-full h-full object-cover" />
+            <img src={getImageUrl(img)} alt={`Uploaded ${idx + 1}`} className="w-full h-full object-cover" />
             <button
               type="button"
               onClick={() => handleRemove(idx)}
