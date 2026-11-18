@@ -35,7 +35,10 @@ export const authController = {
   async googleLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const validated = googleCredentialSchema.parse(req.body);
-      const result = await authService.loginWithGoogle(validated.credential);
+      const result = await authService.loginWithGoogle(
+        validated.credential,
+        validated.audience
+      );
       res.json({ success: true, data: result });
     } catch (err) {
       next(err);

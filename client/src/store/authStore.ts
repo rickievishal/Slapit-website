@@ -10,7 +10,7 @@ interface AuthState {
   isCheckingAuth: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
-  loginWithGoogle: (credential: string) => Promise<void>;
+  loginWithGoogle: (credential: string, audience: 'admin' | 'customer') => Promise<void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
 }
@@ -61,10 +61,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  loginWithGoogle: async (credential) => {
+  loginWithGoogle: async (credential, audience) => {
     set({ isLoading: true });
     try {
-      const res = await authService.loginWithGoogle(credential);
+      const res = await authService.loginWithGoogle(credential, audience);
       localStorage.setItem(AUTH_TOKEN_KEY, res.token);
       set({
         token: res.token,

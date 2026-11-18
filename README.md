@@ -90,6 +90,8 @@ Set the same Google OAuth Web Client ID in `server/.env` (`GOOGLE_CLIENT_ID`) an
 `client/.env.local` (`VITE_GOOGLE_CLIENT_ID`). Add your storefront origin (for local
 development, `http://localhost:5173`) to the OAuth client’s authorized JavaScript origins.
 Email/password customer registration works without Google configuration.
+The same Google button is available at the admin login URL; it only signs in an existing admin
+whose account email matches the verified Google email, and never creates an admin account.
 
 ---
 

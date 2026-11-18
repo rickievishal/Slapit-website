@@ -27,10 +27,13 @@ export const authService = {
     return res.data.data;
   },
 
-  async loginWithGoogle(credential: string): Promise<{ token: string; user: User }> {
+  async loginWithGoogle(
+    credential: string,
+    audience: 'admin' | 'customer'
+  ): Promise<{ token: string; user: User }> {
     const res = await api.post<{ success: boolean; data: { token: string; user: User } }>(
       '/auth/google',
-      { credential }
+      { credential, audience }
     );
     return res.data.data;
   },

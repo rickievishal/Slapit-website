@@ -45,7 +45,7 @@ export const authService = {
     return createSession(user);
   },
 
-  async loginWithGoogle(credential: string) {
+  async loginWithGoogle(credential: string, audience: 'admin' | 'customer') {
     if (!env.GOOGLE_CLIENT_ID) {
       throw new AppError('Google sign-in is not configured', 503);
     }
@@ -67,8 +67,13 @@ export const authService = {
 
     let user = await User.findOne({ googleId: payload.sub });
     if (user) {
-      if (user.role !== 'customer') {
-        throw new AppError('Use the admin sign-in page for this account', 403);
+      if (user.role !== audience) {
+        throw new AppError(
+          audience === 'admin'
+            ? 'This Google account is not linked to an admin account'
+            : 'Use the admin sign-in page for this account',
+          403
+        );
       }
       return createSession(user);
     }
@@ -76,8 +81,13 @@ export const authService = {
     const normalizedEmail = payload.email.trim().toLowerCase();
     user = await User.findOne({ email: normalizedEmail });
     if (user) {
-      if (user.role !== 'customer') {
-        throw new AppError('Use the admin sign-in page for this account', 403);
+      if (user.role !== audience) {
+        throw new AppError(
+          audience === 'admin'
+            ? 'This Google account does not match an admin account'
+            : 'Use the admin sign-in page for this account',
+          403
+        );
       }
       if (user.googleId && user.googleId !== payload.sub) {
         throw new AppError('This email is already linked to another Google account', 409);
@@ -86,6 +96,10 @@ export const authService = {
       user.name = user.name || payload.name || normalizedEmail;
       await user.save();
       return createSession(user);
+    }
+
+    if (audience === 'admin') {
+      throw new AppError('No admin account matches this Google account', 403);
     }
 
     user = new User({

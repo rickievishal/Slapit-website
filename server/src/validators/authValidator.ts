@@ -13,6 +13,7 @@ export const registerSchema = z.object({
 
 export const googleCredentialSchema = z.object({
   credential: z.string().min(1, 'Google credential is required'),
+  audience: z.enum(['admin', 'customer']),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
