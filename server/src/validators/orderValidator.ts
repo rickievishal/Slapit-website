@@ -27,4 +27,9 @@ export const updateOrderStatusSchema = z.object({
   status: z.enum(['placed', 'paid', 'printing', 'packed', 'shipped', 'delivered', 'cancelled']),
 });
 
+export const updatePrintJobSchema = z.object({
+  size: z.string().trim().min(1, 'A print size is required'),
+  completedCopies: z.number().int().min(0, 'Completed copies cannot be negative'),
+});
+
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;

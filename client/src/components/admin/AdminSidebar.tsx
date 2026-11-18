@@ -3,7 +3,9 @@ import { NavLink, Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Package,
+  Boxes,
   ShoppingCart,
+  Printer,
   Users,
   BarChart3,
   Settings,
@@ -24,7 +26,9 @@ export const AdminSidebar: React.FC = () => {
   const navItems = [
     { label: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
     { label: 'Products', icon: Package, path: '/admin/products' },
+    { label: 'Inventory', icon: Boxes, path: '/admin/inventory' },
     { label: 'Orders', icon: ShoppingCart, path: '/admin/orders' },
+    { label: 'Print Jobs', icon: Printer, path: '/admin/print-jobs' },
     { label: 'Customers', icon: Users, path: '/admin/customers' },
     { label: 'Analytics', icon: BarChart3, path: '/admin/analytics' },
     { label: 'Settings', icon: Settings, path: '/admin/settings' },

@@ -7,11 +7,13 @@ const router = Router();
 // Public routes
 router.get('/', productController.getProducts);
 router.get('/featured', productController.getFeaturedProducts);
+router.get('/admin/inventory', authenticate, requireAdmin, productController.getInventory);
 router.get('/admin/:id', authenticate, requireAdmin, productController.getProductById);
 router.get('/:slug', productController.getProductBySlug);
 router.get('/:id/related', productController.getRelatedProducts);
 
 // Admin routes
+router.patch('/admin/:id/inventory', authenticate, requireAdmin, productController.updateInventory);
 router.post('/', authenticate, requireAdmin, productController.createProduct);
 router.put('/:id', authenticate, requireAdmin, productController.updateProduct);
 router.delete('/:id', authenticate, requireAdmin, productController.deleteProduct);

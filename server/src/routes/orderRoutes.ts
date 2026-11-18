@@ -18,6 +18,14 @@ router.get('/mine/:id', authenticate, requireCustomer, orderController.getMyOrde
 // Admin
 router.get('/admin', authenticate, requireAdmin, orderController.getAllOrders);
 router.get('/admin/stats', authenticate, requireAdmin, orderController.getDashboardStats);
+router.get('/admin/print-jobs', authenticate, requireAdmin, orderController.getPrintJobs);
+router.get('/admin/inventory-demand', authenticate, requireAdmin, orderController.getInventoryDemand);
+router.patch(
+  '/admin/print-jobs/:productId',
+  authenticate,
+  requireAdmin,
+  orderController.updatePrintJob
+);
 router.get('/admin/:id', authenticate, requireAdmin, orderController.getOrderById);
 router.patch('/admin/:id/status', authenticate, requireAdmin, orderController.updateOrderStatus);
 

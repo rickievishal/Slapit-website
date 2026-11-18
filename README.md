@@ -110,5 +110,5 @@ whose account email matches the verified Google email, and never creates an admi
 3. **Bag Drawer**: Slide-over drawer with item previews, instant quantity increment/decrement, and subtotal calculation.
 4. **Customer Account**: Register or sign in with email/password or Google, view orders placed while signed in at `/account/orders`, and open each order for item, delivery, price, payment, and fulfillment details.
 5. **Checkout**: Enter customer details & delivery address. Orders are verified and created on the backend with server-side price security; signed-in orders are linked to that customer account. Guest checkout remains available.
-6. **Admin CMS**: Real-time dashboard KPI cards, live order status progression (*PLACED → PAID → PRINTING → PACKED → SHIPPED → DELIVERED*), and complete product CRUD with image uploads.
+6. **Admin CMS**: Real-time dashboard KPI cards, per-size inventory counts with separate active-order demand, grouped print jobs by poster and size with editable completed-copy counts and retained progress, live order status progression (*PLACED → PAID → PRINTING → PACKED → SHIPPED → DELIVERED*), and complete product CRUD with image uploads.
 # Slapit-website

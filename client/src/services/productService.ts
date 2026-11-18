@@ -1,7 +1,23 @@
 import { api } from './api';
-import { Product, PaginatedResponse } from '../types';
+import { InventoryItem, Product, PaginatedResponse } from '../types';
 
 export const productService = {
+  async getInventory(): Promise<InventoryItem[]> {
+    const res = await api.get<{ success: boolean; data: InventoryItem[] }>('/products/admin/inventory');
+    return res.data.data;
+  },
+
+  async updateInventory(
+    productId: string,
+    data: { size: string; quantity: number }
+  ): Promise<InventoryItem> {
+    const res = await api.patch<{ success: boolean; data: InventoryItem }>(
+      `/products/admin/${productId}/inventory`,
+      data
+    );
+    return res.data.data;
+  },
+
   async getProducts(params?: {
     category?: string;
     search?: string;

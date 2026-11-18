@@ -1,6 +1,11 @@
 import { Document, Types } from 'mongoose';
 
 // ===== Product =====
+export interface IProductInventory {
+  size: string;
+  quantity: number;
+}
+
 export interface IProduct extends Document {
   name: string;
   slug: string;
@@ -10,6 +15,7 @@ export interface IProduct extends Document {
   category: Types.ObjectId;
   tags: string[];
   sizes: string[];
+  inventory: IProductInventory[];
   featured: boolean;
   status: 'draft' | 'published';
   createdAt: Date;
@@ -46,6 +52,9 @@ export interface IOrderItem {
   size: string;
   quantity: number;
   price: number;
+  printedQuantity?: number;
+  printTracked?: boolean;
+  printStatus?: 'pending' | 'done';
 }
 
 export interface ICustomerInfo {

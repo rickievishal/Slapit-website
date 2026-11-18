@@ -38,5 +38,10 @@ export const updateProductSchema = productFieldsSchema.partial().superRefine((pr
   if (product.images) validateImageDataSize(product.images, ctx);
 });
 
+export const updateInventorySchema = z.object({
+  size: z.string().trim().min(1, 'A product size is required'),
+  quantity: z.number().int().min(0, 'Stock quantity cannot be negative'),
+});
+
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;

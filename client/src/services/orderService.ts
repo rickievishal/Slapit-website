@@ -1,5 +1,11 @@
 import { api } from './api';
-import { Order, PaginatedResponse, DashboardStats } from '../types';
+import {
+  DashboardStats,
+  InventoryDemand,
+  Order,
+  PaginatedResponse,
+  PrintJob,
+} from '../types';
 
 export const orderService = {
   async createOrder(data: {
@@ -43,6 +49,29 @@ export const orderService = {
 
   async updateOrderStatus(id: string, status: string): Promise<Order> {
     const res = await api.patch<{ success: boolean; data: Order }>(`/orders/admin/${id}/status`, { status });
+    return res.data.data;
+  },
+
+  async getPrintJobs(): Promise<PrintJob[]> {
+    const res = await api.get<{ success: boolean; data: PrintJob[] }>('/orders/admin/print-jobs');
+    return res.data.data;
+  },
+
+  async getInventoryDemand(): Promise<InventoryDemand[]> {
+    const res = await api.get<{ success: boolean; data: InventoryDemand[] }>(
+      '/orders/admin/inventory-demand'
+    );
+    return res.data.data;
+  },
+
+  async updatePrintJob(
+    productId: string,
+    data: { size: string; completedCopies: number }
+  ): Promise<{ completedCopies: number; totalCopies: number; remainingCopies: number }> {
+    const res = await api.patch<{
+      success: boolean;
+      data: { completedCopies: number; totalCopies: number; remainingCopies: number };
+    }>(`/orders/admin/print-jobs/${productId}`, data);
     return res.data.data;
   },
 

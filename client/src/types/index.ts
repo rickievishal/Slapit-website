@@ -16,10 +16,21 @@ export interface Product {
   category: Category;
   tags: string[];
   sizes: string[];
+  inventory?: { size: string; quantity: number }[];
   featured: boolean;
   status: 'draft' | 'published';
   createdAt: string;
   updatedAt: string;
+}
+
+export interface InventoryItem {
+  productId: string;
+  productName: string;
+  image: string;
+  category: Category | null;
+  productStatus: 'draft' | 'published';
+  size: string;
+  quantity: number;
 }
 
 export interface CartItem {
@@ -46,6 +57,28 @@ export interface OrderItem {
   size: string;
   quantity: number;
   price: number;
+  printStatus?: 'pending' | 'done';
+}
+
+export interface PrintJob {
+  productId: string;
+  productName: string;
+  image: string;
+  size: string;
+  quantity: number;
+  completedCopies: number;
+  remainingCopies: number;
+  orderCount: number;
+  orderNumbers: string[];
+}
+
+export interface InventoryDemand {
+  productId: string;
+  size: string;
+  orderedCopies: number;
+  completedCopies: number;
+  copiesToPrint: number;
+  orderCount: number;
 }
 
 export interface CustomerInfo {

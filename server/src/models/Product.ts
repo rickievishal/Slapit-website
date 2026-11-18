@@ -11,11 +11,34 @@ const productSchema = new Schema<IProduct>(
     category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     tags: [{ type: String, trim: true }],
     sizes: { type: [String], default: ['A4', 'A3', 'A2'] },
+    inventory: {
+      type: [
+        new Schema(
+          {
+            size: { type: String, required: true },
+            quantity: { type: Number, required: true, min: 0, default: 0 },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+      select: false,
+    },
     featured: { type: Boolean, default: false },
     status: { type: String, enum: ['draft', 'published'], default: 'draft' },
   },
   { timestamps: true }
 );
+
+productSchema.pre('validate', function () {
+  const quantitiesBySize = new Map(
+    (this.inventory || []).map((item) => [item.size, item.quantity])
+  );
+  this.inventory = [...new Set(this.sizes)].map((size) => ({
+    size,
+    quantity: quantitiesBySize.get(size) ?? 0,
+  }));
+});
 
 // Auto-generate slug from name
 productSchema.pre('validate', async function () {

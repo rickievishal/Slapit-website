@@ -16,6 +16,8 @@ import { ProductsPage } from '../pages/admin/ProductsPage';
 import { ProductFormPage } from '../pages/admin/ProductFormPage';
 import { OrdersPage } from '../pages/admin/OrdersPage';
 import { OrderDetailPage } from '../pages/admin/OrderDetailPage';
+import { PrintJobsPage } from '../pages/admin/PrintJobsPage';
+import { InventoryPage } from '../pages/admin/InventoryPage';
 import { ProtectedRoute } from './ProtectedRoute';
 
 export const router = createBrowserRouter([
@@ -55,8 +57,10 @@ export const router = createBrowserRouter([
       { path: 'products', element: <ProductsPage /> },
       { path: 'products/new', element: <ProductFormPage /> },
       { path: 'products/:id', element: <ProductFormPage /> },
+      { path: 'inventory', element: <InventoryPage /> },
       { path: 'orders', element: <OrdersPage /> },
       { path: 'orders/:id', element: <OrderDetailPage /> },
+      { path: 'print-jobs', element: <PrintJobsPage /> },
       {
         path: 'customers',
         element: (

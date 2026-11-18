@@ -8,6 +8,163 @@ import mongoose from 'mongoose';
 const SHIPPING_COST = 99; // flat shipping rate
 
 export const orderService = {
+  async getInventoryDemand() {
+    return Order.aggregate([
+      { $match: { orderStatus: { $in: ['placed', 'paid', 'printing'] } } },
+      { $unwind: '$items' },
+      {
+        $group: {
+          _id: { productId: '$items.productId', size: '$items.size' },
+          orderedCopies: { $sum: '$items.quantity' },
+          completedCopies: {
+            $sum: {
+              $cond: [
+                { $eq: ['$items.printStatus', 'done'] },
+                '$items.quantity',
+                { $ifNull: ['$items.printedQuantity', 0] },
+              ],
+            },
+          },
+          orderNumbers: { $addToSet: '$orderNumber' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          productId: '$_id.productId',
+          size: '$_id.size',
+          orderedCopies: 1,
+          completedCopies: 1,
+          copiesToPrint: {
+            $max: [{ $subtract: ['$orderedCopies', '$completedCopies'] }, 0],
+          },
+          orderCount: { $size: '$orderNumbers' },
+        },
+      },
+    ]);
+  },
+
+  async getPrintJobs() {
+    return Order.aggregate([
+      {
+        $match: {
+          orderStatus: { $ne: 'cancelled' },
+          $or: [
+            { orderStatus: { $in: ['placed', 'paid', 'printing'] } },
+            { 'items.printTracked': true },
+            { 'items.printedQuantity': { $gt: 0 } },
+            { 'items.printStatus': 'done' },
+          ],
+        },
+      },
+      { $unwind: '$items' },
+      {
+        $match: {
+          $or: [
+            { orderStatus: { $in: ['placed', 'paid', 'printing'] } },
+            { 'items.printTracked': true },
+            { 'items.printedQuantity': { $gt: 0 } },
+            { 'items.printStatus': 'done' },
+          ],
+        },
+      },
+      {
+        $addFields: {
+          'items.completedCopies': {
+            $cond: [
+              { $eq: ['$items.printStatus', 'done'] },
+              '$items.quantity',
+              { $ifNull: ['$items.printedQuantity', 0] },
+            ],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { productId: '$items.productId', size: '$items.size' },
+          productName: { $first: '$items.productName' },
+          image: { $first: '$items.image' },
+          quantity: { $sum: '$items.quantity' },
+          completedCopies: { $sum: '$items.completedCopies' },
+          orderNumbers: { $addToSet: '$orderNumber' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          productId: '$_id.productId',
+          productName: 1,
+          image: 1,
+          size: '$_id.size',
+          quantity: 1,
+          completedCopies: 1,
+          remainingCopies: { $subtract: ['$quantity', '$completedCopies'] },
+          orderNumbers: 1,
+          orderCount: { $size: '$orderNumbers' },
+        },
+      },
+      { $sort: { productName: 1, size: 1 } },
+    ]);
+  },
+
+  async updatePrintJob(productId: string, size: string, completedCopies: number) {
+    if (!mongoose.isValidObjectId(productId)) {
+      throw new AppError('Print job not found', 404);
+    }
+
+    const objectId = new mongoose.Types.ObjectId(productId);
+    const orders = await Order.find({
+      orderStatus: { $ne: 'cancelled' },
+      items: { $elemMatch: { productId: objectId, size } },
+    }).sort({ createdAt: 1 });
+
+    if (orders.length === 0) {
+      throw new AppError('Print job not found', 404);
+    }
+
+    const matchingItems = orders.flatMap((order) =>
+      order.items
+        .map((item, index) => ({ order, item, index }))
+        .filter(
+          ({ item }) =>
+            item.productId.toString() === productId &&
+            item.size === size &&
+            (['placed', 'paid', 'printing'].includes(order.orderStatus) ||
+              item.printTracked ||
+              (item.printedQuantity || 0) > 0 ||
+              item.printStatus === 'done')
+        )
+    );
+    const totalCopies = matchingItems.reduce((sum, { item }) => sum + item.quantity, 0);
+
+    if (completedCopies > totalCopies) {
+      throw new AppError(`Completed copies cannot exceed ${totalCopies}`, 400);
+    }
+
+    let remainingCompletedCopies = completedCopies;
+    const updates = new Map<string, Record<string, number | string | boolean>>();
+    for (const { order, item, index } of matchingItems) {
+      const printedQuantity = Math.min(item.quantity, remainingCompletedCopies);
+      remainingCompletedCopies -= printedQuantity;
+      const orderUpdates = updates.get(order._id.toString()) || {};
+      orderUpdates[`items.${index}.printedQuantity`] = printedQuantity;
+      orderUpdates[`items.${index}.printTracked`] = true;
+      orderUpdates[`items.${index}.printStatus`] = 'pending';
+      updates.set(order._id.toString(), orderUpdates);
+    }
+
+    const result = await Order.bulkWrite(
+      Array.from(updates, ([id, fields]) => ({
+        updateOne: {
+          filter: { _id: new mongoose.Types.ObjectId(id) },
+          update: { $set: fields },
+        },
+      }))
+    );
+
+    return { completedCopies, totalCopies, remainingCopies: totalCopies - completedCopies, modifiedOrders: result.modifiedCount };
+  },
+
   async create(data: CreateOrderInput, userId?: string) {
     // Fetch all products from DB - NEVER trust client prices
     const productIds = data.items.map((item) => item.productId);

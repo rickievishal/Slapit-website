@@ -1,8 +1,35 @@
 import { Request, Response, NextFunction } from 'express';
 import { productService } from '../services/productService';
-import { createProductSchema, updateProductSchema } from '../validators/productValidator';
+import {
+  createProductSchema,
+  updateInventorySchema,
+  updateProductSchema,
+} from '../validators/productValidator';
 
 export const productController = {
+  async getInventory(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const inventory = await productService.getInventory();
+      res.json({ success: true, data: inventory });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async updateInventory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const validated = updateInventorySchema.parse(req.body);
+      const inventory = await productService.updateInventory(
+        req.params.id as string,
+        validated.size,
+        validated.quantity
+      );
+      res.json({ success: true, data: inventory });
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async getProducts(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { category, search, sort, status, featured, page, limit } = req.query;

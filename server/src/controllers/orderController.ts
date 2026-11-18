@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { orderService } from '../services/orderService';
-import { createOrderSchema, updateOrderStatusSchema } from '../validators/orderValidator';
+import {
+  createOrderSchema,
+  updateOrderStatusSchema,
+  updatePrintJobSchema,
+} from '../validators/orderValidator';
 import { AuthRequest } from '../middleware/auth';
 
 export const orderController = {
@@ -85,6 +89,38 @@ export const orderController = {
         sort: sort as string,
       });
       res.json({ success: true, ...result });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async getPrintJobs(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const printJobs = await orderService.getPrintJobs();
+      res.json({ success: true, data: printJobs });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async getInventoryDemand(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const demand = await orderService.getInventoryDemand();
+      res.json({ success: true, data: demand });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async updatePrintJob(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const validated = updatePrintJobSchema.parse(req.body);
+      const result = await orderService.updatePrintJob(
+        req.params.productId as string,
+        validated.size,
+        validated.completedCopies
+      );
+      res.json({ success: true, data: result });
     } catch (err) {
       next(err);
     }

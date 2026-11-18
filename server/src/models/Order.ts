@@ -9,6 +9,9 @@ const orderItemSchema = new Schema(
     size: { type: String, required: true },
     quantity: { type: Number, required: true, min: 1 },
     price: { type: Number, required: true, min: 0 },
+    printedQuantity: { type: Number, min: 0, default: 0 },
+    printTracked: { type: Boolean, default: false },
+    printStatus: { type: String, enum: ['pending', 'done'], default: 'pending' },
   },
   { _id: false }
 );
