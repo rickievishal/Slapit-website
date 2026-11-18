@@ -68,10 +68,11 @@ export const InventoryPage: React.FC = () => {
       sum + (demandByVariant.get(inventoryKey(item.productId, item.size))?.orderedCopies || 0),
     0
   );
-  const copiesToPrint = inventory.reduce(
-    (sum, item) =>
-      sum + (demandByVariant.get(inventoryKey(item.productId, item.size))?.copiesToPrint || 0),
-    0
+  const additionalPrintsNeeded = inventory.reduce((sum, item) => {
+    const remainingDemand =
+      demandByVariant.get(inventoryKey(item.productId, item.size))?.copiesToPrint || 0;
+    return sum + Math.max(remainingDemand - item.quantity, 0);
+  }, 0
   );
 
   const saveQuantity = async (item: InventoryItem) => {
@@ -137,8 +138,8 @@ export const InventoryPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-black tracking-tight text-black sm:text-3xl">Inventory</h1>
           <p className="mt-1 max-w-2xl text-xs font-medium text-neutral-500">
-            Track on-hand stock per poster size. Order demand is shown separately and does not
-            automatically change your stock counts.
+            On-hand stock covers active orders first. This shows only the additional copies to
+            print; stock counts remain independently managed.
           </p>
         </div>
         <label className="w-full text-[10px] font-black uppercase tracking-wide text-neutral-500 sm:w-72">
@@ -159,8 +160,8 @@ export const InventoryPage: React.FC = () => {
         <SummaryCard icon={Printer} label="Active order demand" value={activeDemand} />
         <SummaryCard
           icon={Printer}
-          label="Copies still to print"
-          value={copiesToPrint}
+          label="Extra copies to print"
+          value={additionalPrintsNeeded}
           tone="cyan"
         />
       </section>
@@ -199,7 +200,7 @@ export const InventoryPage: React.FC = () => {
                 <th className="px-3 py-2.5">On hand</th>
                 <th className="px-3 py-2.5">Ordered</th>
                 <th className="px-3 py-2.5">Printed</th>
-                <th className="px-3 py-2.5">To print</th>
+                <th className="px-3 py-2.5">Extra to print</th>
                 <th className="px-3 py-2.5">Stock state</th>
                 <th className="px-3 py-2.5 text-right">Update</th>
               </tr>
@@ -224,6 +225,10 @@ export const InventoryPage: React.FC = () => {
                   const key = inventoryKey(item.productId, item.size);
                   const orderDemand = demandByVariant.get(key);
                   const isLowStock = item.quantity <= LOW_STOCK_THRESHOLD;
+                  const extraToPrint = Math.max(
+                    (orderDemand?.copiesToPrint ?? 0) - item.quantity,
+                    0
+                  );
                   return (
                     <tr key={key} className="h-[60px] align-middle hover:bg-neutral-50">
                       <td className="px-3 py-1.5">
@@ -269,7 +274,7 @@ export const InventoryPage: React.FC = () => {
                         {orderDemand?.completedCopies ?? 0}
                       </td>
                       <td className="px-3 py-1.5 font-mono font-black text-black">
-                        {orderDemand?.copiesToPrint ?? 0}
+                        {extraToPrint}
                       </td>
                       <td className="px-3 py-1.5">
                         <span
