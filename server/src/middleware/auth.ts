@@ -45,6 +45,34 @@ export const authenticate = async (
   }
 };
 
+export const optionalAuthenticate = async (
+  req: AuthRequest,
+  _res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    next();
+    return;
+  }
+
+  try {
+    if (!authHeader.startsWith('Bearer ')) {
+      throw new AppError('Invalid authorization header', 401);
+    }
+
+    const token = authHeader.slice('Bearer '.length);
+    const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+    const user = await User.findById(decoded.userId);
+    if (!user) throw new AppError('User not found', 401);
+
+    req.user = user;
+    next();
+  } catch (error) {
+    next(error instanceof AppError ? error : new AppError('Invalid or expired token', 401));
+  }
+};
+
 export const requireAdmin = (
   req: AuthRequest,
   _res: Response,
@@ -52,6 +80,18 @@ export const requireAdmin = (
 ): void => {
   if (!req.user || req.user.role !== 'admin') {
     next(new AppError('Admin access required', 403));
+    return;
+  }
+  next();
+};
+
+export const requireCustomer = (
+  req: AuthRequest,
+  _res: Response,
+  next: NextFunction
+): void => {
+  if (!req.user || req.user.role !== 'customer') {
+    next(new AppError('Customer access required', 403));
     return;
   }
   next();

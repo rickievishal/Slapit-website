@@ -3,11 +3,12 @@ import { Product } from '../models/Product';
 import { AppError } from '../middleware/errorHandler';
 import { CreateOrderInput } from '../validators/orderValidator';
 import { OrderStatus } from '../types';
+import mongoose from 'mongoose';
 
 const SHIPPING_COST = 99; // flat shipping rate
 
 export const orderService = {
-  async create(data: CreateOrderInput) {
+  async create(data: CreateOrderInput, userId?: string) {
     // Fetch all products from DB - NEVER trust client prices
     const productIds = data.items.map((item) => item.productId);
     const products = await Product.find({ _id: { $in: productIds } });
@@ -32,7 +33,7 @@ export const orderService = {
       return {
         productId: product._id,
         productName: product.name,
-        image: product.images[0] || '',
+        image: product.images[0]?.startsWith('data:') ? '' : product.images[0] || '',
         size: item.size,
         quantity: item.quantity,
         price: product.price, // SERVER-SIDE price
@@ -45,6 +46,7 @@ export const orderService = {
     const total = subtotal + shipping;
 
     const order = new Order({
+      ...(userId ? { user: new mongoose.Types.ObjectId(userId) } : {}),
       customer: data.customer,
       items: orderItems,
       subtotal,
@@ -54,6 +56,30 @@ export const orderService = {
     });
 
     await order.save();
+    return order;
+  },
+
+  async getCustomerOrders(userId: string, page = 1, limit = 20) {
+    const query = { user: new mongoose.Types.ObjectId(userId) };
+    const skip = (page - 1) * limit;
+    const [items, total] = await Promise.all([
+      Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Order.countDocuments(query),
+    ]);
+
+    return { items, total, page, pages: Math.ceil(total / limit) };
+  },
+
+  async getCustomerOrderById(userId: string, orderId: string) {
+    if (!mongoose.isValidObjectId(orderId)) {
+      throw new AppError('Order not found', 404);
+    }
+
+    const order = await Order.findOne({
+      _id: orderId,
+      user: new mongoose.Types.ObjectId(userId),
+    });
+    if (!order) throw new AppError('Order not found', 404);
     return order;
   },
 

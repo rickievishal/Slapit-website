@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getImageUrl } from '../../utils/imageUrl';
 
 interface PosterGalleryProps {
   images: string[];
@@ -31,7 +32,7 @@ export const PosterGallery: React.FC<PosterGalleryProps> = ({ images, productNam
               }`}
             >
               <img
-                src={img}
+                src={getImageUrl(img)}
                 alt={`${productName} thumbnail ${idx + 1}`}
                 className="w-full h-full object-cover"
               />
@@ -50,7 +51,7 @@ export const PosterGallery: React.FC<PosterGalleryProps> = ({ images, productNam
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              src={displayImages[selectedImage]}
+              src={getImageUrl(displayImages[selectedImage])}
               alt={productName}
               className="w-full h-full object-cover"
             />

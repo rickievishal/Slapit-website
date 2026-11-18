@@ -87,7 +87,12 @@ export const useBagStore = create<BagState>()(
     }),
     {
       name: 'slapit-bag',
-      partialize: (state) => ({ items: state.items }),
+      partialize: (state) => ({
+        items: state.items.map((item) => ({
+          ...item,
+          image: item.image.startsWith('data:') ? '' : item.image,
+        })),
+      }),
     }
   )
 );

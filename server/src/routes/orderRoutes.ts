@@ -1,12 +1,19 @@
 import { Router } from 'express';
 import { orderController } from '../controllers/orderController';
-import { authenticate, requireAdmin } from '../middleware/auth';
+import {
+  authenticate,
+  optionalAuthenticate,
+  requireAdmin,
+  requireCustomer,
+} from '../middleware/auth';
 
 const router = Router();
 
 // Public
-router.post('/', orderController.createOrder);
+router.post('/', optionalAuthenticate, orderController.createOrder);
 router.get('/track/:orderNumber', orderController.getOrderByNumber);
+router.get('/mine', authenticate, requireCustomer, orderController.getMyOrders);
+router.get('/mine/:id', authenticate, requireCustomer, orderController.getMyOrderById);
 
 // Admin
 router.get('/admin', authenticate, requireAdmin, orderController.getAllOrders);

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../../types';
 import { formatPrice } from '../../utils/formatters';
+import { getImageUrl } from '../../utils/imageUrl';
 
 interface FeaturedCollectionProps {
   products: Product[];
@@ -52,7 +53,7 @@ export const FeaturedCollection: React.FC<FeaturedCollectionProps> = ({
                     className="relative block aspect-4/3 overflow-hidden bg-neutral-100 border-b-2 border-black"
                   >
                     <img
-                      src={product.images[0] || 'https://placehold.co/600x800/1a1a1a/5CE1E6?text=Poster'}
+                      src={getImageUrl(product.images[0] || 'https://placehold.co/600x800/1a1a1a/5CE1E6?text=Poster')}
                       alt={product.name}
                       className="w-full h-full object-cover hover:scale-103 transition-transform duration-300"
                     />

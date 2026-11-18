@@ -5,6 +5,7 @@ import { orderService } from '../../services/orderService';
 import { Order, OrderStatus } from '../../types';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { formatPrice, formatDate } from '../../utils/formatters';
+import { getImageUrl } from '../../utils/imageUrl';
 
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -129,7 +130,11 @@ export const OrderDetailPage: React.FC = () => {
             <div key={idx} className="py-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-14 h-18 bg-neutral-100 border border-black overflow-hidden shrink-0">
-                  <img src={item.image} alt={item.productName} className="w-full h-full object-cover" />
+                  <img
+                    src={getImageUrl(item.image || 'https://placehold.co/112x144/1a1a1a/5CE1E6?text=Poster')}
+                    alt={item.productName}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div>
                   <h4 className="font-bold text-sm text-black">{item.productName}</h4>

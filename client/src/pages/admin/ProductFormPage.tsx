@@ -27,6 +27,7 @@ export const ProductFormPage: React.FC = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoadingProduct, setIsLoadingProduct] = useState(isEditing);
+  const [productLoadError, setProductLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     categoryService.getCategories().then((cats) => {
@@ -37,27 +38,28 @@ export const ProductFormPage: React.FC = () => {
     });
 
     if (isEditing && id) {
-      productService.getProductBySlug(id).catch(async () => {
-        // or by id if slug query fails
-        const all = await productService.getProducts({ limit: 100 });
-        return all.items.find((p) => p._id === id);
-      }).then((prod: any) => {
-        if (prod) {
+      productService
+        .getAdminProductById(id)
+        .then((prod) => {
           setFormData({
             name: prod.name,
             description: prod.description || '',
             price: prod.price,
-            category: prod.category?._id || prod.category,
+            category: typeof prod.category === 'string' ? prod.category : prod.category._id,
             images: prod.images || [],
             sizes: prod.sizes || ['A4', 'A3', 'A2'],
             tags: prod.tags?.join(', ') || '',
             featured: Boolean(prod.featured),
             status: prod.status || 'published',
           });
-        }
-      }).finally(() => {
-        setIsLoadingProduct(false);
-      });
+        })
+        .catch((err: any) => {
+          console.error('Failed to load product for editing:', err);
+          setProductLoadError(err.response?.data?.message || 'Failed to load product details.');
+        })
+        .finally(() => {
+          setIsLoadingProduct(false);
+        });
     }
   }, [id, isEditing]);
 
@@ -129,6 +131,17 @@ export const ProductFormPage: React.FC = () => {
 
   if (isLoadingProduct) {
     return <div className="py-12 text-center text-sm font-bold">Loading product details...</div>;
+  }
+
+  if (productLoadError) {
+    return (
+      <div className="space-y-4 py-12 text-center">
+        <p className="text-sm font-bold text-red-600">{productLoadError}</p>
+        <Link to="/admin/products" className="text-xs font-bold underline">
+          Return to Products
+        </Link>
+      </div>
+    );
   }
 
   return (

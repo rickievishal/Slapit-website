@@ -30,7 +30,8 @@ export interface ICategory extends Document {
 export interface IUser extends Document {
   name: string;
   email: string;
-  passwordHash: string;
+  passwordHash?: string;
+  googleId?: string;
   role: 'admin' | 'customer';
   createdAt: Date;
   updatedAt: Date;
@@ -64,6 +65,7 @@ export type OrderStatus = 'placed' | 'paid' | 'printing' | 'packed' | 'shipped' 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
 export interface IOrder extends Document {
+  user?: Types.ObjectId;
   orderNumber: string;
   customer: ICustomerInfo;
   items: IOrderItem[];

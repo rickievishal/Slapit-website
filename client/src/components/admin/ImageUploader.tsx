@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UploadCloud, X, Check } from 'lucide-react';
+import { UploadCloud, X } from 'lucide-react';
 import { uploadService } from '../../services/uploadService';
 import { getImageUrl } from '../../utils/imageUrl';
 

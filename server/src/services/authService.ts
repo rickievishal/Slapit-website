@@ -1,80 +1,100 @@
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import { User } from '../models/User';
 import { env } from '../config/env';
 import { AppError } from '../middleware/errorHandler';
 
+const googleClient = new OAuth2Client();
+
+const createSession = (user: InstanceType<typeof User>) => ({
+  token: jwt.sign({ userId: user._id.toString(), role: user.role }, env.JWT_SECRET, {
+    expiresIn: '7d',
+  }),
+  user: {
+    _id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  },
+});
+
 export const authService = {
   async login(email: string, password: string) {
-  console.log('[AUTH] Login attempt received');
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail }).select('+passwordHash');
+    if (!user || !(await user.comparePassword(password))) {
+      throw new AppError('Invalid email or password', 401);
+    }
 
-  const normalizedEmail = email.trim().toLowerCase();
-
-  console.log('[AUTH] Database:', User.db.name);
-  console.log('[AUTH] Collection:', User.collection.name);
-  console.log('[AUTH] Email received:', JSON.stringify(normalizedEmail));
-
-  const userCount = await User.countDocuments({
-    email: normalizedEmail,
-  });
-
-  console.log('[AUTH] Matching user count:', userCount);
-
-  const user = await User.findOne({
-    email: normalizedEmail,
-  }).select('+passwordHash');
-
-  console.log('[AUTH] User found:', !!user);
-
-  if (!user) {
-    throw new AppError('Invalid email or password', 401);
-  }
-
-  console.log('[AUTH] Hash exists:', !!user.passwordHash);
-
-  const isMatch = await user.comparePassword(password);
-  console.log('[AUTH] Password matched:', isMatch);
-
-  if (!isMatch) {
-    throw new AppError('Invalid email or password', 401);
-  }
-
-  const token = this.generateToken(
-    (user._id as any).toString(),
-    user.role
-  );
-
-  return {
-    token,
-    user: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    },
-  };
-},
-
-  async register(name: string, email: string, password: string, role: 'admin' | 'customer' = 'customer') {
-    const existing = await User.findOne({ email });
-    if (existing) throw new AppError('Email already registered', 409);
-
-    const user = new User({ name, email, passwordHash: password, role });
-    await user.save();
-
-    const token = this.generateToken((user._id as any).toString(), user.role);
-
-    return {
-      token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    };
+    return createSession(user);
   },
 
-  generateToken(userId: string, role: string): string {
-    return jwt.sign({ userId, role }, env.JWT_SECRET, { expiresIn: '7d' });
+  async register(name: string, email: string, password: string) {
+    const normalizedEmail = email.trim().toLowerCase();
+    const existing = await User.findOne({ email: normalizedEmail });
+    if (existing) throw new AppError('Email already registered', 409);
+
+    const user = new User({
+      name: name.trim(),
+      email: normalizedEmail,
+      passwordHash: password,
+      role: 'customer',
+    });
+    await user.save();
+
+    return createSession(user);
+  },
+
+  async loginWithGoogle(credential: string) {
+    if (!env.GOOGLE_CLIENT_ID) {
+      throw new AppError('Google sign-in is not configured', 503);
+    }
+
+    let payload;
+    try {
+      const ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } catch {
+      throw new AppError('Invalid Google credential', 401);
+    }
+
+    if (!payload?.sub || !payload.email || payload.email_verified !== true) {
+      throw new AppError('A verified Google email is required', 401);
+    }
+
+    let user = await User.findOne({ googleId: payload.sub });
+    if (user) {
+      if (user.role !== 'customer') {
+        throw new AppError('Use the admin sign-in page for this account', 403);
+      }
+      return createSession(user);
+    }
+
+    const normalizedEmail = payload.email.trim().toLowerCase();
+    user = await User.findOne({ email: normalizedEmail });
+    if (user) {
+      if (user.role !== 'customer') {
+        throw new AppError('Use the admin sign-in page for this account', 403);
+      }
+      if (user.googleId && user.googleId !== payload.sub) {
+        throw new AppError('This email is already linked to another Google account', 409);
+      }
+      user.googleId = payload.sub;
+      user.name = user.name || payload.name || normalizedEmail;
+      await user.save();
+      return createSession(user);
+    }
+
+    user = new User({
+      name: payload.name || normalizedEmail,
+      email: normalizedEmail,
+      googleId: payload.sub,
+      role: 'customer',
+    });
+    await user.save();
+    return createSession(user);
   },
 };

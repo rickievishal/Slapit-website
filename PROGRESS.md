@@ -1,5 +1,11 @@
 # SLAP IT — Development Progress
 
+## 2026-11-18 — Customer accounts and order history
+- Added customer email/password registration and login while keeping admin authentication separate.
+- Added Google ID-token verification; configure the same OAuth client ID as `GOOGLE_CLIENT_ID` in the server and `VITE_GOOGLE_CLIENT_ID` in the client to enable it.
+- Linked authenticated checkouts to customer accounts and added protected order-history and order-detail views, including item, delivery, payment, price, and fulfillment details. Guest checkout remains available.
+- Public registration now always creates a customer account, regardless of any submitted role.
+
 ## 2026-10-11 17:45 — Full-Stack Build Completed & Verified
 
 ### Completed
@@ -7,7 +13,7 @@
   - Implemented Product, Category, User, and Order models.
   - Server-side price calculation in `orderService` guaranteeing security.
   - Centralized error handler and JWT authentication middleware.
-  - Pluggable image upload storage abstraction.
+  - Admin image uploads converted to Base64 data URLs and stored with product records.
   - Populated MongoDB with 12 real poster products, 5 categories, and admin credentials.
 - **Storefront & Design System**:
   - Matched visual reference with bold typography, pale cyan `#5CE1E6`, black brutalist borders and drop shadows (`shadow-brutal`).

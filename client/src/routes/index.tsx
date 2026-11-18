@@ -5,6 +5,9 @@ import { HomePage } from '../pages/store/HomePage';
 import { PostersPage } from '../pages/store/PostersPage';
 import { ProductPage } from '../pages/store/ProductPage';
 import { CheckoutPage } from '../pages/store/CheckoutPage';
+import { CustomerAuthPage } from '../pages/store/CustomerAuthPage';
+import { CustomerOrdersPage } from '../pages/store/CustomerOrdersPage';
+import { CustomerOrderDetailPage } from '../pages/store/CustomerOrderDetailPage';
 
 import { LoginPage } from '../pages/admin/LoginPage';
 import { AdminLayout } from '../components/admin/AdminLayout';
@@ -25,6 +28,10 @@ export const router = createBrowserRouter([
       { path: 'posters', element: <PostersPage /> },
       { path: 'posters/:slug', element: <ProductPage /> },
       { path: 'checkout', element: <CheckoutPage /> },
+      { path: 'account/login', element: <CustomerAuthPage mode="login" /> },
+      { path: 'account/register', element: <CustomerAuthPage mode="register" /> },
+      { path: 'account/orders', element: <CustomerOrdersPage /> },
+      { path: 'account/orders/:id', element: <CustomerOrderDetailPage /> },
     ],
   },
 

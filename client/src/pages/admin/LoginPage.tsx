@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../../components/common/Button';
 
@@ -7,7 +7,7 @@ export const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { login, isLoading } = useAuthStore();
+  const { login, logout, isLoading } = useAuthStore();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -15,6 +15,11 @@ export const LoginPage: React.FC = () => {
     setError(null);
     try {
       await login(email, password);
+      if (useAuthStore.getState().user?.role !== 'admin') {
+        logout();
+        setError('This is a customer account. Sign in from the store account page.');
+        return;
+      }
       navigate('/admin/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid email or password');
@@ -82,6 +87,9 @@ export const LoginPage: React.FC = () => {
           <p className="text-[11px] text-neutral-400 font-mono">
             Demo credentials: admin@slapit.com / admin123
           </p>
+          <Link to="/account/login" className="mt-3 inline-block text-xs font-bold underline">
+            Customer sign in
+          </Link>
         </div>
       </div>
     </div>

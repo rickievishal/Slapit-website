@@ -15,6 +15,7 @@ const orderItemSchema = new Schema(
 
 const orderSchema = new Schema<IOrder>(
   {
+    user: { type: Schema.Types.ObjectId, ref: 'User' },
     orderNumber: { type: String, required: true, unique: true },
     customer: {
       name: { type: String, required: true },
@@ -55,5 +56,6 @@ orderSchema.pre('validate', async function () {
 
 orderSchema.index({ orderNumber: 1 });
 orderSchema.index({ orderStatus: 1, createdAt: -1 });
+orderSchema.index({ user: 1, createdAt: -1 });
 
 export const Order = mongoose.model<IOrder>('Order', orderSchema);

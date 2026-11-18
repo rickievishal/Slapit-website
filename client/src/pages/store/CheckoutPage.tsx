@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { z } from 'zod';
 import { ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { useBagStore } from '../../store/bagStore';
 import { orderService } from '../../services/orderService';
 import { Button } from '../../components/common/Button';
 import { formatPrice } from '../../utils/formatters';
+import { getImageUrl } from '../../utils/imageUrl';
+import { useAuthStore } from '../../store/authStore';
 
 const checkoutSchema = z.object({
   name: z.string().min(1, 'Full name is required'),
@@ -19,17 +21,17 @@ const checkoutSchema = z.object({
 
 export const CheckoutPage: React.FC = () => {
   const { items, getSubtotal, clearBag } = useBagStore();
-  const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
 
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+  const [formData, setFormData] = useState(() => ({
+    name: user?.role === 'customer' ? user.name : '',
+    email: user?.role === 'customer' ? user.email : '',
     phone: '',
     address: '',
     city: '',
     state: '',
     pincode: '',
-  });
+  }));
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,11 +125,20 @@ export const CheckoutPage: React.FC = () => {
           </p>
 
           <div className="pt-4 border-t border-neutral-200">
-            <Link to="/posters">
-              <Button variant="primary" fullWidth>
-                Back to Posters
-              </Button>
-            </Link>
+            <div className="space-y-3">
+              {user?.role === 'customer' && (
+                <Link to="/account/orders" className="block">
+                  <Button variant="outline" fullWidth>
+                    View Order History
+                  </Button>
+                </Link>
+              )}
+              <Link to="/posters" className="block">
+                <Button variant="primary" fullWidth>
+                  Back to Posters
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -307,7 +318,7 @@ export const CheckoutPage: React.FC = () => {
               {items.map((item) => (
                 <div key={`${item.productId}-${item.size}`} className="py-3 flex items-center gap-3">
                   <div className="w-14 h-18 bg-neutral-100 border border-black shrink-0 overflow-hidden">
-                    <img src={item.image} alt={item.productName} className="w-full h-full object-cover" />
+                    <img src={getImageUrl(item.image)} alt={item.productName} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-xs text-black line-clamp-1">{item.productName}</p>

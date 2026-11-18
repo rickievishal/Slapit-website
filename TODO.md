@@ -26,7 +26,7 @@
 - [x] Auth routes + controller + service
 - [x] Order routes + controller + service (server-side price calculation)
 - [x] Admin order routes & dashboard stats
-- [x] Image upload abstraction with multipart storage
+- [x] Image uploads converted to Base64 data URLs for product storage
 - [x] Zod validators for inputs
 
 ## Backend — Seed
@@ -77,6 +77,14 @@
 - [x] Zod validation
 - [x] Real order creation through backend (server-side pricing enforcement)
 - [x] Order confirmation view with generated #SLP order ID
+- [x] Associate orders placed while signed in with the customer account
+
+## Customer Accounts
+- [x] Customer email/password registration and login
+- [x] Google sign-in with backend-verified Google credentials
+- [x] Customer order history page restricted to the signed-in account
+- [x] Customer order detail view with items, delivery address, totals, and status
+- [x] Keep guest checkout available for shoppers without an account
 
 ## Admin — Auth & Portal
 - [x] Admin login page (/admin/login)

@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-export const createProductSchema = z.object({
+const MAX_PRODUCT_IMAGE_DATA_SIZE = 14 * 1024 * 1024;
+
+const productFieldsSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
   slug: z.string().optional(),
   description: z.string().default(''),
@@ -13,7 +15,28 @@ export const createProductSchema = z.object({
   status: z.enum(['draft', 'published']).default('draft'),
 });
 
-export const updateProductSchema = createProductSchema.partial();
+const validateImageDataSize = (images: string[], ctx: z.RefinementCtx) => {
+  const imageDataSize = images.reduce(
+    (total, image) => total + (image.startsWith('data:') ? image.length : 0),
+    0
+  );
+
+  if (imageDataSize > MAX_PRODUCT_IMAGE_DATA_SIZE) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Combined image data must be no larger than 14 MiB per product',
+      path: ['images'],
+    });
+  }
+};
+
+export const createProductSchema = productFieldsSchema.superRefine((product, ctx) => {
+  validateImageDataSize(product.images, ctx);
+});
+
+export const updateProductSchema = productFieldsSchema.partial().superRefine((product, ctx) => {
+  if (product.images) validateImageDataSize(product.images, ctx);
+});
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;

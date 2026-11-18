@@ -5,7 +5,7 @@ export const uploadService = {
     const formData = new FormData();
     formData.append('image', file);
 
-    const res = await api.post<{ success: boolean; data: { url: string; filename: string } }>(
+    const res = await api.post<{ success: boolean; data: { url: string } }>(
       '/upload',
       formData,
       {

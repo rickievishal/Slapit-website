@@ -7,6 +7,7 @@ const router = Router();
 // Public routes
 router.get('/', productController.getProducts);
 router.get('/featured', productController.getFeaturedProducts);
+router.get('/admin/:id', authenticate, requireAdmin, productController.getProductById);
 router.get('/:slug', productController.getProductBySlug);
 router.get('/:id/related', productController.getRelatedProducts);
 

@@ -6,6 +6,7 @@ import { useBagStore } from '../../store/bagStore';
 import { QuantitySelector } from '../common/QuantitySelector';
 import { Button } from '../common/Button';
 import { formatPrice } from '../../utils/formatters';
+import { getImageUrl } from '../../utils/imageUrl';
 
 export const BagDrawer: React.FC = () => {
   const {
@@ -96,7 +97,7 @@ export const BagDrawer: React.FC = () => {
                     >
                       <div className="w-20 h-26 bg-neutral-100 shrink-0 border border-black overflow-hidden">
                         <img
-                          src={item.image}
+                          src={getImageUrl(item.image || 'https://placehold.co/160x208/1a1a1a/5CE1E6?text=Poster')}
                           alt={item.productName}
                           className="w-full h-full object-cover"
                         />

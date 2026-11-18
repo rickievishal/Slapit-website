@@ -9,7 +9,9 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('slapit_admin_token');
+    const token =
+      localStorage.getItem('slapit_auth_token') ||
+      localStorage.getItem('slapit_admin_token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -24,6 +26,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       // Clear token if expired or invalid
       if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+        localStorage.removeItem('slapit_auth_token');
         localStorage.removeItem('slapit_admin_token');
         window.location.href = '/admin/login';
       }

@@ -6,9 +6,13 @@ export const loginSchema = z.object({
 });
 
 export const registerSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email'),
+  name: z.string().trim().min(1, 'Name is required').max(100),
+  email: z.string().trim().email('Invalid email').max(254),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+export const googleCredentialSchema = z.object({
+  credential: z.string().min(1, 'Google credential is required'),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

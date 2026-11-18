@@ -27,6 +27,11 @@ export const productService = {
     return res.data.data;
   },
 
+  async getAdminProductById(id: string): Promise<Product> {
+    const res = await api.get<{ success: boolean; data: Product }>(`/products/admin/${id}`);
+    return res.data.data;
+  },
+
   async getRelatedProducts(id: string, limit = 4): Promise<Product[]> {
     const res = await api.get<{ success: boolean; data: Product[] }>(`/products/${id}/related`, {
       params: { limit },

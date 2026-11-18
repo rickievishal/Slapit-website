@@ -1,10 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag } from 'lucide-react';
+import { LogOut, ShoppingBag, UserRound } from 'lucide-react';
 import { useBagStore } from '../../store/bagStore';
+import { useAuthStore } from '../../store/authStore';
 
 export const Header: React.FC = () => {
   const { toggleBag, getItemCount } = useBagStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const itemCount = getItemCount();
 
   return (
@@ -18,7 +20,7 @@ export const Header: React.FC = () => {
         </Link>
 
         {/* Center / Right Links */}
-        <nav className="flex items-center gap-8">
+        <nav className="flex items-center gap-3 sm:gap-8">
           <div className="hidden sm:flex items-center gap-6 text-sm font-semibold tracking-wide">
             <Link
               to="/posters"
@@ -33,6 +35,37 @@ export const Header: React.FC = () => {
               cards
             </Link>
           </div>
+
+          {isAuthenticated && user ? (
+            <div className="flex items-center gap-2 text-xs font-bold sm:gap-3 sm:text-sm">
+              <Link
+                to={user.role === 'admin' ? '/admin/dashboard' : '/account/orders'}
+                className="inline-flex items-center gap-1.5 hover:underline"
+              >
+                <UserRound className="h-4 w-4" />
+                <span className="hidden md:inline">
+                  {user.role === 'admin' ? 'Admin' : 'My orders'}
+                </span>
+              </Link>
+              <button
+                type="button"
+                onClick={logout}
+                className="inline-flex items-center gap-1 text-neutral-500 hover:text-black"
+                aria-label="Sign out"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden lg:inline">Sign out</span>
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/account/login"
+              className="inline-flex items-center gap-1.5 text-xs font-bold sm:text-sm"
+            >
+              <UserRound className="h-4 w-4" />
+              <span>Sign in</span>
+            </Link>
+          )}
 
           {/* Bag Button matching reference pill layout */}
           <button

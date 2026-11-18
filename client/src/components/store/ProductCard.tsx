@@ -4,6 +4,7 @@ import { Heart, ShoppingBag } from 'lucide-react';
 import { Product } from '../../types';
 import { formatPrice } from '../../utils/formatters';
 import { useBagStore } from '../../store/bagStore';
+import { getImageUrl } from '../../utils/imageUrl';
 
 interface ProductCardProps {
   product: Product;
@@ -34,7 +35,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         className="relative block aspect-3/4 overflow-hidden bg-neutral-100 border-b-2 border-black"
       >
         <img
-          src={product.images[0] || 'https://placehold.co/600x800/1a1a1a/5CE1E6?text=Poster'}
+          src={getImageUrl(product.images[0] || 'https://placehold.co/600x800/1a1a1a/5CE1E6?text=Poster')}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-300"
           loading="lazy"

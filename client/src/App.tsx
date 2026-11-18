@@ -4,11 +4,11 @@ import { router } from './routes';
 import { useAuthStore } from './store/authStore';
 
 export const App: React.FC = () => {
-  const { checkAuth } = useAuthStore();
+  const checkAuth = useAuthStore((state) => state.checkAuth);
 
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [checkAuth]);
 
   return <RouterProvider router={router} />;
 };

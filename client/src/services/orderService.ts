@@ -16,6 +16,16 @@ export const orderService = {
     return res.data.data;
   },
 
+  async getMyOrders(params?: { page?: number; limit?: number }): Promise<PaginatedResponse<Order>> {
+    const res = await api.get<PaginatedResponse<Order>>('/orders/mine', { params });
+    return res.data;
+  },
+
+  async getMyOrderById(id: string): Promise<Order> {
+    const res = await api.get<{ success: boolean; data: Order }>(`/orders/mine/${id}`);
+    return res.data.data;
+  },
+
   async getAdminOrders(params?: {
     status?: string;
     page?: number;

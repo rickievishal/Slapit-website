@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import { upload, storageProvider } from '../middleware/upload';
+import { upload } from '../middleware/upload';
 import { authenticate, requireAdmin } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 
@@ -15,10 +15,10 @@ router.post(
       if (!req.file) {
         throw new AppError('No image file provided', 400);
       }
-      const url = await storageProvider.upload(req.file);
+      const url = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
       res.status(201).json({
         success: true,
-        data: { url, filename: req.file.filename },
+        data: { url },
       });
     } catch (err) {
       next(err);

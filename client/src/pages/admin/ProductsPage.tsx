@@ -6,6 +6,7 @@ import { Product } from '../../types';
 import { Button } from '../../components/common/Button';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { formatPrice } from '../../utils/formatters';
+import { getImageUrl } from '../../utils/imageUrl';
 
 export const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -104,7 +105,7 @@ export const ProductsPage: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-14 bg-neutral-100 border border-black shrink-0 overflow-hidden">
                           <img
-                            src={p.images[0] || 'https://placehold.co/600x800/1a1a1a/5CE1E6?text=Poster'}
+                            src={getImageUrl(p.images[0] || 'https://placehold.co/600x800/1a1a1a/5CE1E6?text=Poster')}
                             alt={p.name}
                             className="w-full h-full object-cover"
                           />
