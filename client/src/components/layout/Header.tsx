@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { LogOut, ShoppingBag, UserRound } from 'lucide-react';
 import { useBagStore } from '../../store/bagStore';
 import { useAuthStore } from '../../store/authStore';
-
+import  navLogo  from '../../../public/logoslapit.png'
 export const Header: React.FC = () => {
   const { toggleBag, getItemCount } = useBagStore();
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -14,9 +14,10 @@ export const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo - Bold script vibe matching reference */}
         <Link to="/" className="flex items-center gap-1 group">
-          <span className="font-logo text-2xl sm:text-3xl tracking-tight text-black group-hover:text-neutral-700 transition-colors">
+          <span className="font-logo text-2xl sm:text-3xl tracking-tight text-black group-hover:text-neutral-700 transition-colors hidden">
             Slap it.
           </span>
+          <img className='h-14' src={navLogo} />
         </Link>
 
         {/* Center / Right Links */}

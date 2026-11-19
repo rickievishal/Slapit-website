@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { X } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 
-const DISMISSED_KEY = 'slapit_sign_in_prompt_seen';
-const PROMPT_DELAY_MS = 10_000;
+const PROMPT_DELAY_MS = 20_000;
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const isBrowsingStore = (pathname: string) =>
@@ -16,8 +15,15 @@ export const SignInPrompt: React.FC = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [promptCycle, setPromptCycle] = useState(0);
   const [googleError, setGoogleError] = useState<string | null>(null);
   const { loginWithGoogle, isLoading, logout } = useAuthStore();
+
+  const dismissPrompt = useCallback(() => {
+    setIsOpen(false);
+    setGoogleError(null);
+    setPromptCycle((cycle) => cycle + 1);
+  }, []);
 
   const handleGoogleSuccess = async (credential?: string) => {
     if (!credential) {
@@ -46,30 +52,28 @@ export const SignInPrompt: React.FC = () => {
     if (
       isAuthenticated ||
       isCheckingAuth ||
-      !isBrowsingStore(pathname) ||
-      localStorage.getItem(DISMISSED_KEY)
+      !isBrowsingStore(pathname)
     ) {
       return;
     }
 
     const timer = window.setTimeout(() => {
-      localStorage.setItem(DISMISSED_KEY, 'true');
       setIsOpen(true);
     }, PROMPT_DELAY_MS);
 
     return () => window.clearTimeout(timer);
-  }, [isAuthenticated, isCheckingAuth, pathname]);
+  }, [isAuthenticated, isCheckingAuth, pathname, promptCycle]);
 
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsOpen(false);
+      if (event.key === 'Escape') dismissPrompt();
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
+  }, [dismissPrompt, isOpen]);
 
   if (!isOpen) return null;
 
@@ -77,7 +81,7 @@ export const SignInPrompt: React.FC = () => {
     <div
       className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 px-4"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) setIsOpen(false);
+        if (event.target === event.currentTarget) dismissPrompt();
       }}
     >
       <section
@@ -89,7 +93,7 @@ export const SignInPrompt: React.FC = () => {
       >
         <button
           type="button"
-          onClick={() => setIsOpen(false)}
+          onClick={dismissPrompt}
           className="absolute right-3 top-3 p-1 text-neutral-500 hover:text-black"
           aria-label="Close sign-in prompt"
         >
@@ -141,14 +145,14 @@ export const SignInPrompt: React.FC = () => {
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
             to="/account/login"
-            onClick={() => setIsOpen(false)}
+            onClick={dismissPrompt}
             className="inline-flex flex-1 items-center justify-center border-2 border-black bg-[#5CE1E6] px-5 py-3 text-sm font-bold text-black shadow-[3px_3px_0px_0px_#000000] hover:bg-[#3BBFC4]"
           >
             Sign in
           </Link>
           <button
             type="button"
-            onClick={() => setIsOpen(false)}
+            onClick={dismissPrompt}
             className="border-2 border-black bg-white px-5 py-3 text-sm font-bold text-black hover:bg-neutral-50"
           >
             Keep browsing
