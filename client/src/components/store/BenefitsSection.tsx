@@ -27,9 +27,9 @@ export const BenefitsSection: React.FC = () => {
           <p className="text-xs font-black uppercase tracking-widest text-neutral-400 mb-1">
             WHY FANS KEEP COMING BACK
           </p>
-          <h3 className="text-2xl sm:text-3xl font-black text-black">
+          <h2 className="text-2xl sm:text-3xl font-black text-black">
             The Slapit Standard
-          </h3>
+          </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">

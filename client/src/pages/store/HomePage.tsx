@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { HeroSection } from '../../components/store/HeroSection';
 import { Ticker } from '../../components/store/Ticker';
 import { FeaturedCollection } from '../../components/store/FeaturedCollection';
@@ -54,6 +55,45 @@ export const HomePage: React.FC = () => {
       <FeaturedCollection products={featuredProducts} isLoading={isLoading} />
       <GoodWallsSection />
       <BenefitsSection />
+      <section className="border-b-2 border-black bg-white py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-black tracking-tight sm:text-3xl">
+            Find posters for your kind of space
+          </h2>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-neutral-600 sm:text-base">
+            Explore graphic art prints, movie wall art, music-inspired designs, sports posters and
+            bold typography. Choose a print that feels like you, then pick the size that works for
+            your wall. Each poster is made to order on heavyweight matte paper and shipped across
+            India in protective packaging.
+          </p>
+          <nav
+            aria-label="Shop posters by category"
+            className="mt-6 flex flex-wrap gap-3"
+          >
+            {[
+              ['Art posters', 'art'],
+              ['Movie posters', 'movies'],
+              ['Music posters', 'music'],
+              ['Sports posters', 'sports'],
+              ['Typography posters', 'typography'],
+            ].map(([label, category]) => (
+              <Link
+                key={category}
+                to={`/posters?category=${category}`}
+                className="border-2 border-black bg-[#FAFAFA] px-4 py-2 text-sm font-bold text-black hover:bg-[#5CE1E6]"
+              >
+                {label}
+              </Link>
+            ))}
+            <Link
+              to="/posters"
+              className="border-2 border-black bg-[#5CE1E6] px-4 py-2 text-sm font-bold text-black hover:bg-[#3BBFC4]"
+            >
+              Browse all posters
+            </Link>
+          </nav>
+        </div>
+      </section>
       <CTASection />
     </div>
   );
