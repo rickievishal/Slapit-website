@@ -16,6 +16,7 @@ export const HomePage: React.FC = () => {
     '@type': 'OnlineStore',
     name: 'Slap It Posters',
     url: `${SITE_URL}/`,
+    sameAs: ['https://www.instagram.com/slapit.posters.in/'],
     description:
       'Shop bold wall art, art prints, movie posters, music posters and typography posters, printed on premium matte paper and delivered across India.',
     areaServed: {

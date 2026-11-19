@@ -64,6 +64,16 @@ export const Footer: React.FC = () => {
               <li>
                 <span className="cursor-pointer hover:underline">FAQs</span>
               </li>
+              <li>
+                <a
+                  href="https://www.instagram.com/slapit.posters.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  Instagram
+                </a>
+              </li>
             </ul>
           </div>
 

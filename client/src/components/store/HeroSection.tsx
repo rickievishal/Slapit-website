@@ -4,7 +4,7 @@ import image from '../../assets/hero-bg.png'
 
 export const HeroSection: React.FC = () => {
   return (
-    <section className="relative w-full overflow-hidden pt-8  md:pt-14 grid-paper border-b-2 border-black">
+    <section className="relative w-full overflow-hidden pt-8  md:pt-14 grid-paper border-black">
       <div className="max-w-7xl mx-auto  sm:px-6 lg:px-8">
         <div className="h-auto flex flex-col items-center text-center max-w-4xl mx-auto overflow-hidden">
           {/* Eyebrow & Shop Now Pill */}
@@ -39,7 +39,7 @@ export const HeroSection: React.FC = () => {
           </div> */}
         </div>
 
-        <div className="relative z-10 mx-auto -mt-16 mb-8 max-w-3xl bg-[#FAFAFA]/90 px-5 py-4 text-center">
+        <div className="absolute -z-10 mx-auto -mt-16 mb-8 max-w-3xl px-5 py-4 text-center">
           <h1 className="text-3xl font-black uppercase tracking-tight text-black sm:text-5xl">
             Posters that make your walls yours.
           </h1>
