@@ -116,6 +116,7 @@ export const productService = {
         .select('+thumbnail')
         .populate('category')
         .sort(sortOption)
+        .allowDiskUse(true)
         .skip(skip)
         .limit(limit),
       Product.countDocuments(query),
