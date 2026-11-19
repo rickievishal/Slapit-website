@@ -25,7 +25,7 @@ A full-stack, database-driven poster e-commerce platform built according to the 
 - **JWT** (JSON Web Tokens) & **bcryptjs** password hashing
 - **Google OAuth** ID token verification for customer sign-in
 - **Zod** for schema validation on all inputs
-- **Multer** in-memory uploads stored as Base64 data URLs in MongoDB product records (5 MB/file; 14 MiB combined image data/product)
+- **Multer** in-memory uploads stored as binary files in MongoDB GridFS (5 MB/file)
 
 ---
 
@@ -92,6 +92,12 @@ development, `http://localhost:5173`) to the OAuth client’s authorized JavaScr
 Email/password customer registration works without Google configuration.
 The same Google button is available at the admin login URL; it only signs in an existing admin
 whose account email matches the verified Google email, and never creates an admin account.
+
+### Product image storage
+New admin uploads are stored as binary files in MongoDB GridFS; product documents keep image URLs.
+After deploying the GridFS support, run `cd server && npm run migrate:product-images` to preview
+existing Base64 product images. Run `npm run migrate:product-images -- --apply` to migrate them.
+Both commands use the `MONGODB_URI` in `server/.env`.
 
 ---
 

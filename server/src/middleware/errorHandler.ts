@@ -20,8 +20,13 @@ export const errorHandler = (
   err: Error | AppError,
   req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ): void => {
+  if (res.headersSent) {
+    next(err);
+    return;
+  }
+
   let statusCode = 500;
   let message = 'Internal Server Error';
 

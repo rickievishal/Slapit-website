@@ -1,15 +1,29 @@
 import { Product } from '../models/Product';
 import { AppError } from '../middleware/errorHandler';
 import { CreateProductInput, UpdateProductInput } from '../validators/productValidator';
+import {
+  getGridFsImageId,
+  imageStorageService,
+  parseImageDataUrl,
+} from './imageStorageService';
 import sharp from 'sharp';
 
 const PRODUCT_THUMBNAIL_SIZE = 320;
 
 const createThumbnail = async (image: string): Promise<string> => {
-  const separatorIndex = image.indexOf(',');
-  if (!image.startsWith('data:') || separatorIndex === -1) return image;
+  const gridFsId = getGridFsImageId(image);
+  const dataUrl = parseImageDataUrl(image);
+  let original: Buffer;
+  if (gridFsId) {
+    const storedImage = await imageStorageService.getBuffer(gridFsId);
+    if (!storedImage) throw new Error(`GridFS image ${gridFsId} was not found`);
+    original = storedImage.buffer;
+  } else if (dataUrl) {
+    original = dataUrl.buffer;
+  } else {
+    return image;
+  }
 
-  const original = Buffer.from(image.slice(separatorIndex + 1), 'base64');
   const thumbnail = await sharp(original)
     .rotate()
     .resize(PRODUCT_THUMBNAIL_SIZE, PRODUCT_THUMBNAIL_SIZE, {
@@ -18,6 +32,10 @@ const createThumbnail = async (image: string): Promise<string> => {
     })
     .jpeg({ quality: 72 })
     .toBuffer();
+
+  if (gridFsId) {
+    return imageStorageService.store(thumbnail, 'image/jpeg', `thumbnail-${gridFsId}.jpg`);
+  }
 
   return `data:image/jpeg;base64,${thumbnail.toString('base64')}`;
 };

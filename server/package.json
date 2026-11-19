@@ -7,6 +7,7 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "migrate:product-images": "npm run build && node dist/scripts/migrateProductImagesToGridFS.js",
     "seed": "ts-node-dev --transpile-only src/seed.ts"
   },
   "keywords": [],
