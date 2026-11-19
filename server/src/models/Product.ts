@@ -62,5 +62,9 @@ productSchema.pre('validate', async function () {
 productSchema.index({ name: 'text', tags: 'text' });
 productSchema.index({ category: 1, status: 1 });
 productSchema.index({ featured: 1, status: 1 });
+productSchema.index({ status: 1, createdAt: -1 });
+productSchema.index({ status: 1, price: 1 });
+productSchema.index({ status: 1, featured: -1, createdAt: -1 });
+productSchema.index({ status: 1, name: 1 });
 
 export const Product = mongoose.model<IProduct>('Product', productSchema);
