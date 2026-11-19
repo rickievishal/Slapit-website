@@ -7,6 +7,7 @@ import categoryRoutes from './routes/categoryRoutes';
 import authRoutes from './routes/authRoutes';
 import orderRoutes from './routes/orderRoutes';
 import uploadRoutes from './routes/uploadRoutes';
+import seoRoutes from './routes/seoRoutes';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -14,6 +15,7 @@ const app = express();
 // Middlewares
 const allowedOrigins = [
   env.CLIENT_URL,
+  'https://slapitposters.itsmevishal.in',
   'https://slapit-website.vercel.app',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
@@ -38,6 +40,8 @@ app.use(
 app.get('/api/health', (_req, res) => {
   res.json({ success: true, status: 'ok', timestamp: new Date().toISOString() });
 });
+
+app.use('/api/seo', seoRoutes);
 
 // Routes
 app.use('/api/products', productRoutes);

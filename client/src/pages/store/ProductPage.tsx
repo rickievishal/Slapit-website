@@ -6,11 +6,12 @@ import { SizeSelector } from '../../components/store/SizeSelector';
 import { QuantitySelector } from '../../components/common/QuantitySelector';
 import { RelatedProducts } from '../../components/store/RelatedProducts';
 import { Button } from '../../components/common/Button';
-import { Badge } from '../../components/common/Badge';
 import { productService } from '../../services/productService';
 import { Product } from '../../types';
 import { formatPrice } from '../../utils/formatters';
 import { useBagStore } from '../../store/bagStore';
+import { getImageUrl } from '../../utils/imageUrl';
+import { absoluteSiteUrl, usePageSeo } from '../../utils/seo';
 
 export const ProductPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -21,6 +22,43 @@ export const ProductPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const { addItem } = useBagStore();
+  const productImageUrls = product?.images
+    .filter((image) => !image.startsWith('data:'))
+    .map(getImageUrl) || [];
+
+  usePageSeo({
+    title: product
+      ? `${product.name} Poster | Slap It Posters`
+      : 'Shop Posters | Slap It Posters',
+    description: product
+      ? `${product.description || `Shop the ${product.name} poster at Slap It Posters.`} Printed on premium matte paper and delivered across India.`
+      : 'Shop bold wall art and posters printed on premium matte paper.',
+    path: product ? `/posters/${product.slug}` : '/posters',
+    image: productImageUrls[0],
+    type: 'product',
+    structuredData: product
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.name,
+          description: product.description || `${product.name} poster by Slap It Posters.`,
+          ...(productImageUrls.length > 0 ? { image: productImageUrls } : {}),
+          sku: product._id,
+          brand: {
+            '@type': 'Brand',
+            name: 'Slap It Posters',
+          },
+          offers: {
+            '@type': 'Offer',
+            url: absoluteSiteUrl(`/posters/${product.slug}`),
+            priceCurrency: 'INR',
+            price: product.price,
+            availability: 'https://schema.org/InStock',
+            itemCondition: 'https://schema.org/NewCondition',
+          },
+        }
+      : undefined,
+  });
 
   useEffect(() => {
     if (!slug) return;

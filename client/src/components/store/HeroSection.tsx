@@ -1,7 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
-import { Button } from '../common/Button';
 import image from '../../assets/hero-bg.png'
 
 export const HeroSection: React.FC = () => {
@@ -25,7 +23,8 @@ export const HeroSection: React.FC = () => {
             <img
               className="absolute inset-0 h-full w-full object-cover"
               src={image}
-              alt="Hero background"
+              alt=""
+              fetchPriority="high"
             />
           </div>
           {/* Huge Slap it Typography Headline matching visual */}
@@ -38,6 +37,15 @@ export const HeroSection: React.FC = () => {
               cool posters
             </span>
           </div> */}
+        </div>
+
+        <div className="relative z-10 mx-auto -mt-16 mb-8 max-w-3xl bg-[#FAFAFA]/90 px-5 py-4 text-center">
+          <h1 className="text-3xl font-black uppercase tracking-tight text-black sm:text-5xl">
+            Posters that make your walls yours.
+          </h1>
+          <p className="mt-2 text-sm font-medium text-neutral-700 sm:text-base">
+            Shop bold wall art, movie prints, music posters and graphic designs.
+          </p>
         </div>
 
         {/* Poster Collage matching visual reference */}

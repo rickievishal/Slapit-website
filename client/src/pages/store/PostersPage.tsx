@@ -7,6 +7,7 @@ import { SortDropdown } from '../../components/store/SortDropdown';
 import { productService } from '../../services/productService';
 import { categoryService } from '../../services/categoryService';
 import { Product, Category } from '../../types';
+import { usePageSeo } from '../../utils/seo';
 
 export const PostersPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,6 +23,26 @@ export const PostersPage: React.FC = () => {
   const currentPage =
     Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const [totalPages, setTotalPages] = useState(1);
+  const selectedCategory = categories.find((category) => category.slug === currentCategory);
+  const title = selectedCategory
+    ? `${selectedCategory.name} Posters | Slap It Posters`
+    : 'Shop Posters & Wall Art Online | Slap It Posters';
+  const description = selectedCategory
+    ? `Shop ${selectedCategory.name.toLowerCase()} posters and wall art at Slap It Posters. Explore bold designs printed on premium matte paper and delivered across India.`
+    : 'Browse art, movie, music, sports and typography posters at Slap It Posters. Find bold wall art printed on premium matte paper and delivered across India.';
+  const canonicalPath = currentCategory
+    ? `/posters?category=${encodeURIComponent(currentCategory)}${currentPage > 1 ? `&page=${currentPage}` : ''}`
+    : currentSearch || currentSort !== 'latest'
+      ? '/posters'
+      : currentPage > 1
+        ? `/posters?page=${currentPage}`
+        : '/posters';
+
+  usePageSeo({
+    title,
+    description,
+    path: canonicalPath,
+  });
 
   // Load categories once
   useEffect(() => {

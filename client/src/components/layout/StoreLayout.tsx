@@ -4,6 +4,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { BagDrawer } from '../store/BagDrawer';
 import { Toast } from '../common/Toast';
+import { SignInPrompt } from '../auth/SignInPrompt';
 import { useBagStore } from '../../store/bagStore';
 
 export const StoreLayout: React.FC = () => {
@@ -20,6 +21,7 @@ export const StoreLayout: React.FC = () => {
       <BagDrawer />
       {/* Animated feedback toast */}
       <Toast show={justAdded} message="Slapped to bag!" />
+      <SignInPrompt />
     </div>
   );
 };

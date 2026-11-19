@@ -99,6 +99,13 @@ After deploying the GridFS support, run `cd server && npm run migrate:product-im
 existing Base64 product images. Run `npm run migrate:product-images -- --apply` to migrate them.
 Both commands use the `MONGODB_URI` in `server/.env`.
 
+### Search engine optimization
+The storefront sets page titles, descriptions, canonical URLs, social sharing metadata, and product
+structured data. `client/vercel.json` routes `/sitemap.xml` to the API-generated sitemap, and
+`client/public/robots.txt` identifies public and private routes. The canonical storefront domain is
+`https://slapitposters.itsmevishal.in`; set `VITE_SITE_URL` in Vercel and `SITE_URL` in the API
+environment to this origin if overriding the defaults.
+
 ---
 
 ## 🔐 Admin Portal Credentials
