@@ -8,6 +8,8 @@ import { StatusBadge } from '../../components/common/StatusBadge';
 import { formatPrice } from '../../utils/formatters';
 import { getImageUrl } from '../../utils/imageUrl';
 
+const PRODUCTS_PER_PAGE = 20;
+
 export const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -18,7 +20,7 @@ export const ProductsPage: React.FC = () => {
   useEffect(() => {
     let isMounted = true;
     productService
-      .getProducts({ status: '', page: currentPage, limit: 50 })
+      .getProducts({ status: '', page: currentPage, limit: PRODUCTS_PER_PAGE })
       .then((res) => {
         if (isMounted) {
           setProducts(res.items);
@@ -48,7 +50,7 @@ export const ProductsPage: React.FC = () => {
         setIsLoading(true);
         setCurrentPage((page) => page - 1);
       } else {
-        setTotalPages(Math.max(1, Math.ceil((totalCount - 1) / 50)));
+        setTotalPages(Math.max(1, Math.ceil((totalCount - 1) / PRODUCTS_PER_PAGE)));
       }
     } catch (err) {
       alert('Failed to delete product');
@@ -185,7 +187,7 @@ export const ProductsPage: React.FC = () => {
         <span className="font-medium text-neutral-500">
           {totalCount === 0
             ? '0 products'
-            : `${(currentPage - 1) * 50 + 1}-${Math.min(currentPage * 50, totalCount)} of ${totalCount} products`}
+            : `${(currentPage - 1) * PRODUCTS_PER_PAGE + 1}-${Math.min(currentPage * PRODUCTS_PER_PAGE, totalCount)} of ${totalCount} products`}
         </span>
         <nav aria-label="Product catalog pages" className="flex items-center gap-3">
           <button
