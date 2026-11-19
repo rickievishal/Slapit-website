@@ -18,7 +18,7 @@ export const notFoundHandler = (_req: Request, _res: Response, next: NextFunctio
 
 export const errorHandler = (
   err: Error | AppError,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
@@ -60,8 +60,11 @@ export const errorHandler = (
     message = 'Token expired';
   }
 
-  if (process.env.NODE_ENV !== 'production') {
-    console.error('Error:', err);
+  if (statusCode >= 500 || process.env.NODE_ENV !== 'production') {
+    console.error(
+      `[API ${statusCode}] ${req.method} ${req.path}`,
+      err.stack || err.message
+    );
   }
 
   res.status(statusCode).json({
