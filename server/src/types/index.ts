@@ -12,6 +12,7 @@ export interface IProduct extends Document {
   description: string;
   price: number;
   images: string[];
+  thumbnail?: string;
   category: Types.ObjectId;
   tags: string[];
   sizes: string[];

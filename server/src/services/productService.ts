@@ -1,6 +1,26 @@
 import { Product } from '../models/Product';
 import { AppError } from '../middleware/errorHandler';
 import { CreateProductInput, UpdateProductInput } from '../validators/productValidator';
+import sharp from 'sharp';
+
+const PRODUCT_THUMBNAIL_SIZE = 320;
+
+const createThumbnail = async (image: string): Promise<string> => {
+  const separatorIndex = image.indexOf(',');
+  if (!image.startsWith('data:') || separatorIndex === -1) return image;
+
+  const original = Buffer.from(image.slice(separatorIndex + 1), 'base64');
+  const thumbnail = await sharp(original)
+    .rotate()
+    .resize(PRODUCT_THUMBNAIL_SIZE, PRODUCT_THUMBNAIL_SIZE, {
+      fit: 'inside',
+      withoutEnlargement: true,
+    })
+    .jpeg({ quality: 72 })
+    .toBuffer();
+
+  return `data:image/jpeg;base64,${thumbnail.toString('base64')}`;
+};
 
 interface ProductFilters {
   category?: string;
@@ -92,12 +112,38 @@ export const productService = {
 
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
-      Product.find(query).populate('category').sort(sortOption).skip(skip).limit(limit),
+      Product.find(query)
+        .select('+thumbnail')
+        .populate('category')
+        .sort(sortOption)
+        .skip(skip)
+        .limit(limit),
       Product.countDocuments(query),
     ]);
 
+    const listingItems = [];
+    for (let index = 0; index < items.length; index += 4) {
+      const batch = await Promise.all(
+        items.slice(index, index + 4).map(async (product) => {
+          const originalImage = product.images[0] || '';
+          let thumbnail = product.thumbnail || '';
+
+          if (!thumbnail && originalImage) {
+            thumbnail = await createThumbnail(originalImage);
+            await Product.updateOne({ _id: product._id }, { $set: { thumbnail } });
+          }
+
+          return {
+            ...product.toObject(),
+            images: thumbnail ? [thumbnail] : [],
+          };
+        })
+      );
+      listingItems.push(...batch);
+    }
+
     return {
-      items,
+      items: listingItems,
       total,
       page,
       pages: Math.ceil(total / limit),
@@ -123,8 +169,9 @@ export const productService = {
   },
 
   async update(id: string, data: UpdateProductInput) {
-    const product = await Product.findById(id).select('+inventory');
+    const product = await Product.findById(id).select('+inventory +thumbnail');
     if (!product) throw new AppError('Product not found', 404);
+    if (data.images) product.thumbnail = '';
     Object.assign(product, data);
     await product.save();
     return product.populate('category');
