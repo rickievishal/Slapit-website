@@ -18,6 +18,10 @@ export const PostersPage: React.FC = () => {
   const currentCategory = searchParams.get('category') || '';
   const currentSearch = searchParams.get('search') || '';
   const currentSort = searchParams.get('sort') || 'latest';
+  const requestedPage = Number(searchParams.get('page'));
+  const currentPage =
+    Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const [totalPages, setTotalPages] = useState(1);
 
   // Load categories once
   useEffect(() => {
@@ -34,10 +38,12 @@ export const PostersPage: React.FC = () => {
           category: categoryObj?._id,
           search: currentSearch || undefined,
           sort: currentSort,
-          limit: 40,
+          page: currentPage,
+          limit: 12,
         });
         setProducts(res.items);
         setTotalCount(res.total);
+        setTotalPages(res.pages);
       } catch (err) {
         console.error('Failed to fetch products:', err);
       } finally {
@@ -46,7 +52,7 @@ export const PostersPage: React.FC = () => {
     };
 
     loadProducts();
-  }, [currentCategory, currentSearch, currentSort, categories]);
+  }, [currentCategory, currentSearch, currentSort, currentPage, categories]);
 
   const updateParam = (key: string, value: string) => {
     setSearchParams((prev) => {
@@ -56,8 +62,14 @@ export const PostersPage: React.FC = () => {
       } else {
         next.delete(key);
       }
+      if (key !== 'page') next.delete('page');
       return next;
     });
+  };
+
+  const goToPage = (page: number) => {
+    updateParam('page', page > 1 ? String(page) : '');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -102,6 +114,33 @@ export const PostersPage: React.FC = () => {
 
         {/* Product Grid */}
         <ProductGrid products={products} isLoading={isLoading} />
+
+        {!isLoading && totalPages > 1 && (
+          <nav
+            aria-label="Poster pages"
+            className="mt-10 flex items-center justify-center gap-4"
+          >
+            <button
+              type="button"
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage <= 1}
+              className="border-2 border-black bg-white px-4 py-2 text-xs font-black uppercase disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <span className="font-mono text-xs font-bold text-neutral-600">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage >= totalPages}
+              className="border-2 border-black bg-[#5CE1E6] px-4 py-2 text-xs font-black uppercase disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+            </button>
+          </nav>
+        )}
       </div>
     </div>
   );

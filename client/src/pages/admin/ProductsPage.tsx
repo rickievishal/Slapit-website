@@ -11,32 +11,53 @@ import { getImageUrl } from '../../utils/imageUrl';
 export const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const loadProducts = async () => {
-    setIsLoading(true);
-    try {
-      // In admin we fetch all products including drafts
-      const res = await productService.getProducts({ status: '', limit: 50 });
-      setProducts(res.items);
-    } catch (err) {
-      console.error('Failed to load admin products:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    loadProducts();
-  }, []);
+    let isMounted = true;
+    productService
+      .getProducts({ status: '', page: currentPage, limit: 50 })
+      .then((res) => {
+        if (isMounted) {
+          setProducts(res.items);
+          setTotalCount(res.total);
+          setTotalPages(res.pages);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load admin products:', err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [currentPage]);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
     try {
       await productService.deleteProduct(id);
       setProducts((prev) => prev.filter((p) => p._id !== id));
+      setTotalCount((count) => Math.max(0, count - 1));
+      if (products.length === 1 && currentPage > 1) {
+        setIsLoading(true);
+        setCurrentPage((page) => page - 1);
+      } else {
+        setTotalPages(Math.max(1, Math.ceil((totalCount - 1) / 50)));
+      }
     } catch (err) {
       alert('Failed to delete product');
     }
+  };
+
+  const goToPage = (page: number) => {
+    setIsLoading(true);
+    setCurrentPage(page);
   };
 
   const handleToggleStatus = async (product: Product) => {
@@ -158,6 +179,35 @@ export const ProductsPage: React.FC = () => {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 text-xs">
+        <span className="font-medium text-neutral-500">
+          {totalCount === 0
+            ? '0 products'
+            : `${(currentPage - 1) * 50 + 1}-${Math.min(currentPage * 50, totalCount)} of ${totalCount} products`}
+        </span>
+        <nav aria-label="Product catalog pages" className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => goToPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage <= 1 || isLoading}
+            className="border-2 border-black bg-white px-3 py-2 font-black uppercase disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Previous
+          </button>
+          <span className="font-mono font-bold text-neutral-600">
+            Page {currentPage} of {Math.max(1, totalPages)}
+          </span>
+          <button
+            type="button"
+            onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage >= totalPages || isLoading}
+            className="border-2 border-black bg-[#5CE1E6] px-3 py-2 font-black uppercase disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            Next
+          </button>
+        </nav>
       </div>
     </div>
   );

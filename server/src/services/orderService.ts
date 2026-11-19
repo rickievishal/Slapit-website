@@ -10,7 +10,7 @@ const SHIPPING_COST = 99; // flat shipping rate
 export const orderService = {
   async getInventoryDemand() {
     return Order.aggregate([
-      { $match: { orderStatus: { $in: ['placed', 'paid', 'printing'] } } },
+      { $match: { orderStatus: 'placed' } },
       { $unwind: '$items' },
       {
         $group: {

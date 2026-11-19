@@ -19,10 +19,10 @@ export const productService = {
       .populate('category')
       .sort({ name: 1 });
     return products.flatMap((product) =>
-      product.sizes.map((size) => ({
+      product.sizes.map((size, index) => ({
         productId: product._id,
         productName: product.name,
-        image: product.images[0]?.startsWith('data:') ? '' : product.images[0] || '',
+        image: index === 0 ? product.images[0] || '' : '',
         category: product.category,
         productStatus: product.status,
         size,

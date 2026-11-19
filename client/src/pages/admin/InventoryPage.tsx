@@ -52,6 +52,15 @@ export const InventoryPage: React.FC = () => {
     () => new Map(demand.map((item) => [inventoryKey(item.productId, item.size), item])),
     [demand]
   );
+  const imageByProduct = useMemo(() => {
+    const images = new Map<string, string>();
+    inventory.forEach((item) => {
+      if (item.image && !images.has(item.productId)) {
+        images.set(item.productId, item.image);
+      }
+    });
+    return images;
+  }, [inventory]);
 
   const filteredInventory = inventory.filter((item) =>
     `${item.productName} ${item.category?.name || ''} ${item.size}`
@@ -157,7 +166,7 @@ export const InventoryPage: React.FC = () => {
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Inventory summary">
         <SummaryCard icon={Boxes} label="Variants tracked" value={inventory.length} />
         <SummaryCard icon={PackageCheck} label="Units on hand" value={totalStock} />
-        <SummaryCard icon={Printer} label="Active order demand" value={activeDemand} />
+        <SummaryCard icon={Printer} label="Placed order demand" value={activeDemand} />
         <SummaryCard
           icon={Printer}
           label="Extra copies to print"
@@ -168,7 +177,8 @@ export const InventoryPage: React.FC = () => {
 
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
         <p className="font-medium text-neutral-500">
-          Low stock: {LOW_STOCK_THRESHOLD} or fewer on-hand copies. Counts start at zero.
+          Only PLACED orders count toward print needs. Low stock is {LOW_STOCK_THRESHOLD} or fewer
+          copies; counts start at zero.
         </p>
         <p className="font-bold text-amber-700">{lowStockVariants} low-stock variants</p>
       </div>
@@ -198,7 +208,7 @@ export const InventoryPage: React.FC = () => {
                 <th className="px-3 py-2.5">Product</th>
                 <th className="px-3 py-2.5">Size</th>
                 <th className="px-3 py-2.5">On hand</th>
-                <th className="px-3 py-2.5">Ordered</th>
+                <th className="px-3 py-2.5">Placed</th>
                 <th className="px-3 py-2.5">Printed</th>
                 <th className="px-3 py-2.5">Extra to print</th>
                 <th className="px-3 py-2.5">Stock state</th>
@@ -234,7 +244,7 @@ export const InventoryPage: React.FC = () => {
                       <td className="px-3 py-1.5">
                         <div className="flex items-center gap-2">
                           <img
-                            src={getImageUrl(item.image || 'https://placehold.co/80x112/1a1a1a/5CE1E6?text=Poster')}
+                            src={getImageUrl(imageByProduct.get(item.productId) || 'https://placehold.co/80x112/1a1a1a/5CE1E6?text=Poster')}
                             alt=""
                             width={32}
                             height={44}
