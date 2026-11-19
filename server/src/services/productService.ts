@@ -8,7 +8,8 @@ import {
 } from './imageStorageService';
 import sharp from 'sharp';
 
-const PRODUCT_THUMBNAIL_SIZE = 320;
+const PRODUCT_THUMBNAIL_SIZE = 800;
+const PRODUCT_THUMBNAIL_VERSION = 2;
 
 const createThumbnail = async (image: string): Promise<string> => {
   const gridFsId = getGridFsImageId(image);
@@ -30,7 +31,7 @@ const createThumbnail = async (image: string): Promise<string> => {
       fit: 'inside',
       withoutEnlargement: true,
     })
-    .jpeg({ quality: 72 })
+    .jpeg({ quality: 84 })
     .toBuffer();
 
   if (gridFsId) {
@@ -132,7 +133,7 @@ export const productService = {
     const skip = (page - 1) * limit;
     const [items, total] = await Promise.all([
       Product.find(query)
-        .select('+thumbnail')
+        .select('+thumbnail +thumbnailVersion')
         .populate('category')
         .sort(sortOption)
         .allowDiskUse(true)
@@ -148,9 +149,17 @@ export const productService = {
           const originalImage = product.images[0] || '';
           let thumbnail = product.thumbnail || '';
 
-          if (!thumbnail && originalImage) {
+          if (originalImage && product.thumbnailVersion !== PRODUCT_THUMBNAIL_VERSION) {
             thumbnail = await createThumbnail(originalImage);
-            await Product.updateOne({ _id: product._id }, { $set: { thumbnail } });
+            await Product.updateOne(
+              { _id: product._id },
+              {
+                $set: {
+                  thumbnail,
+                  thumbnailVersion: PRODUCT_THUMBNAIL_VERSION,
+                },
+              }
+            );
           }
 
           return {
@@ -189,9 +198,12 @@ export const productService = {
   },
 
   async update(id: string, data: UpdateProductInput) {
-    const product = await Product.findById(id).select('+inventory +thumbnail');
+    const product = await Product.findById(id).select('+inventory +thumbnail +thumbnailVersion');
     if (!product) throw new AppError('Product not found', 404);
-    if (data.images) product.thumbnail = '';
+    if (data.images) {
+      product.thumbnail = '';
+      product.thumbnailVersion = 0;
+    }
     Object.assign(product, data);
     await product.save();
     return product.populate('category');

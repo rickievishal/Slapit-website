@@ -9,6 +9,7 @@ const productSchema = new Schema<IProduct>(
     price: { type: Number, required: true, min: 0 },
     images: [{ type: String }],
     thumbnail: { type: String, default: '', select: false },
+    thumbnailVersion: { type: Number, default: 0, select: false },
     category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     tags: [{ type: String, trim: true }],
     sizes: { type: [String], default: ['A4', 'A3', 'A2'] },

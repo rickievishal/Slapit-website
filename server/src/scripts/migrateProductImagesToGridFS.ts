@@ -12,7 +12,7 @@ const migrate = async () => {
   const products = Product.find({
     $or: [{ images: /^data:image\// }, { thumbnail: /^data:image\// }],
   })
-    .select('+thumbnail +inventory')
+    .select('+thumbnail +thumbnailVersion +inventory')
     .cursor();
 
   for await (const product of products) {
