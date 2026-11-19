@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 
 const DISMISSED_KEY = 'slapit_sign_in_prompt_seen';
-const PROMPT_DELAY_MS = 30_000;
+const PROMPT_DELAY_MS = 10_000;
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const isBrowsingStore = (pathname: string) =>
