@@ -66,5 +66,6 @@ productSchema.index({ status: 1, createdAt: -1 });
 productSchema.index({ status: 1, price: 1 });
 productSchema.index({ status: 1, featured: -1, createdAt: -1 });
 productSchema.index({ status: 1, name: 1 });
+productSchema.index({ name: 1 });
 
 export const Product = mongoose.model<IProduct>('Product', productSchema);

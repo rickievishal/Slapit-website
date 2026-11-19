@@ -37,7 +37,8 @@ export const productService = {
     const products = await Product.find()
       .select('+inventory')
       .populate('category')
-      .sort({ name: 1 });
+      .sort({ name: 1 })
+      .allowDiskUse(true);
     return products.flatMap((product) =>
       product.sizes.map((size, index) => ({
         productId: product._id,
