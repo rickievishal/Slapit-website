@@ -12,6 +12,13 @@ may evolve.
 
 ## Current Stack and Main Files
 
+This section identifies the implementation in this repository; it is **not** a requirement for
+projects that reuse this skill. The architecture and adaptation steps below apply to plain
+JavaScript projects too. TypeScript, React, Express, MongoDB, Mongoose, Zustand, and any particular
+validation or authentication library are optional choices, not prerequisites. Use the target
+project's existing language, framework, database, and conventions; translate the behavior rather
+than copying project-specific imports or file paths.
+
 - Client: React, React Router, Zustand, Axios, Google Identity Services via `@react-oauth/google`.
 - API: Express, TypeScript, Mongoose, MongoDB, Zod, JWT, bcryptjs, Google `OAuth2Client`.
 - Account model: `server/src/models/User.ts`.
@@ -113,9 +120,11 @@ authentication and role checks on every protected endpoint:
 - `optionalAuthenticate`: allows guest checkout but validates a supplied token and attaches its
   user when present.
 
-Typical Express composition:
+The following is an Express illustration, written in ordinary JavaScript. It shows the ordering
+and separation of concerns; adapt it to the target framework (or its existing route-handler style)
+instead of adding Express or TypeScript just to match this example:
 
-```ts
+```js
 router.get('/admin/resource', authenticate, requireAdmin, controller.getResource);
 router.post('/orders', optionalAuthenticate, controller.createOrder);
 router.get('/mine', authenticate, requireCustomer, controller.getMyOrders);
@@ -193,28 +202,38 @@ as implemented capabilities without checking the latest source.
 
 ## Reuse This Pattern in Another Ecommerce Project
 
-1. Define a user model with normalized unique email, hidden password hash, optional OAuth subject,
-   and a server-controlled role enum.
-2. Hash passwords in a single model/service layer; validate registration and login separately.
-3. Create distinct customer and admin provisioning policies. Never expose role assignment through
+These are behavior-level requirements, not a prescribed language or package list. They can be
+implemented in JavaScript or TypeScript, with the project's current framework and persistence
+layer; use its established patterns for middleware, validation, data access, and tests.
+
+1. Inspect the target project's language, framework, data model, routes, environment configuration,
+   and UI. Identify existing auth/session helpers to reuse before adding dependencies.
+2. Define a user record with normalized unique email, a securely stored password hash when
+   password login is supported, optional OAuth subject, and a server-controlled role.
+3. Hash passwords in the existing model or service layer; validate registration and login
+   separately using the project's current validation approach.
+4. Create distinct customer and admin provisioning policies. Never expose role assignment through
    public registration.
-4. Verify OAuth credentials on the server against the configured client audience. Require a
+5. Verify OAuth credentials on the server against the configured client audience. Require a
    verified email and an explicit account type; do not let an OAuth login create privileged users.
-5. Issue a short, documented signed session and return only a safe user projection.
-6. Add a client auth store, startup session validation, centralized Bearer attachment, and clean
-   logout/token-expiry handling.
-7. Protect frontend routes for usability, then enforce roles again in API middleware.
-8. For commerce, keep guest checkout optional but derive product availability, price, totals, and
+6. Issue a signed session with a documented lifetime and return only a safe user projection.
+7. Integrate with the project's existing client/session mechanism for startup validation,
+   authorization headers or cookies, and logout/expiry handling.
+8. Protect frontend routes for usability, then enforce authentication and roles again at the API
+   or server action boundary.
+9. For commerce, keep guest checkout optional but derive product availability, price, totals, and
    ownership on the server.
-9. Build admin features as independently guarded API capabilities (catalog, inventory, orders,
-   fulfillment), validating every mutation.
-10. Add sign-in reminders only as optional UX: scope them to public browsing routes, wait until
+10. Build admin features as independently guarded capabilities (catalog, inventory, orders,
+    fulfillment), validating every mutation.
+11. Add sign-in reminders only as optional UX: scope them to public browsing routes, wait until
     auth status is known, provide a clear dismiss path, avoid blocking guest checkout, and tune the
     repeat interval with user experience in mind.
-11. Add tests for password hashing, role mismatch, OAuth verification failures, access-control
-    denial, guest checkout, customer-owned order isolation, and admin mutations.
-12. Configure production secrets and OAuth origins using environment variables. Never commit
-    credentials, demo passwords, production database URIs, or JWT secrets.
+12. Add tests using the project's existing test setup for password hashing, role mismatch, OAuth
+    verification failures, access-control denial, guest checkout, customer-owned order isolation,
+    and admin mutations.
+13. Configure production secrets and OAuth origins using environment variables or the platform's
+    secret manager. Never commit credentials, demo passwords, production database URIs, or JWT
+    secrets.
 
 Before adapting this skill, inspect the target project's data model, routes, environment
 configuration, and UI. Port the architecture, not Slap It's domain names, route paths, product
